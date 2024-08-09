@@ -1,5 +1,4 @@
 FROM golang:1.22-alpine as builder
-RUN apk update && apk add --no-cache make
 
 WORKDIR /usr/src/service
 COPY go.mod .
