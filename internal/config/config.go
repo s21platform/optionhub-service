@@ -11,7 +11,6 @@ type Config struct {
 
 type Service struct {
 	Port string `env:"OPTIONHUB_SERVICE_PORT"`
-	Host string `env:"OPTIONHUB_SERVICE_HOST"`
 }
 
 func NewConfig() *Config {
