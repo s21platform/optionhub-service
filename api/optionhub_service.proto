@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+option go_package = "./internal/service";
+
+service OptionhubService {
+  rpc GetOsById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetAllOs (GetAllIn) returns (GetAllOut){};
+  rpc AddOs (AddIn) returns (AddOut){};
+  rpc SetOsById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteOsById (DeleteByIdIn) returns (DeleteByIdOut){};
+
+  rpc GetWorkPlaceById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetAllWorkPlace (GetAllIn) returns (GetAllOut){};
+  rpc AddWorkPlace (AddIn) returns (AddOut){};
+  rpc SetWorkPlaceById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteWorkPlaceById (DeleteByIdIn) returns (DeleteByIdOut){};
+
+  rpc GetStudyPlaceById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetAllStudyPlace (GetAllIn) returns (GetAllOut){};
+  rpc AddStudyPlace (AddIn) returns (AddOut){};
+  rpc SetStudyPlaceById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteStudyPlaceById (DeleteByIdIn) returns (DeleteByIdOut){};
+
+  rpc GetHobbyById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetHobbyPlace (GetAllIn) returns (GetAllOut){};
+  rpc AddHobby (AddIn) returns (AddOut){};
+  rpc SetHobbyById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteHobbyById (DeleteByIdIn) returns (DeleteByIdOut){};
+
+  rpc GetSkillById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetSkillPlace (GetAllIn) returns (GetAllOut){};
+  rpc AddSkill (AddIn) returns (AddOut){};
+  rpc SetSkillById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteSkillById (DeleteByIdIn) returns (DeleteByIdOut){};
+
+  rpc GetCityById (GetByIdIn) returns (GetByIdOut){};
+  rpc GetCityPlace (GetAllIn) returns (GetAllOut){};
+  rpc AddCity (AddIn) returns (AddOut){};
+  rpc SetCityById (SetByIdIn) returns (SetByIdOut){};
+  rpc DeleteCityById (DeleteByIdIn) returns (DeleteByIdOut){};
+}
+
+//message request
+message GetByIdIn {
+  //user's id
+  int64 id = 1;
+}
+
+//message response
+message GetByIdOut {
+  int64 id = 1;
+  string value = 2;
+}
+
+
+message GetAllIn {}
+
+//message response for all active values
+message GetAllOut {
+  repeated GetByIdOut items = 1;
+}
+
+//message request
+message AddIn {
+  //value that will be added
+  string value = 1;
+}
+
+//message response
+message AddOut {
+  //id of added value
+  int64 id = 1;
+  string value = 2;
+}
+
+//message request
+message SetByIdIn {
+  int64 id = 1;
+}
+
+//message response
+message SetByIdOut {
+  //id of value that will be changed
+  int64 id = 1;
+  string value = 2;
+}
+
+//message request
+message DeleteByIdIn {
+  //value with such id will be marked as inactive
+  int64 id = 1;
+}
+
+//message response
+message DeleteByIdOut {
+  //flag that says if deletion was successful
+  bool ok = 1;
+}
