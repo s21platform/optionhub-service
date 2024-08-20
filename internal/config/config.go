@@ -6,11 +6,20 @@ import (
 )
 
 type Config struct {
-	Service Service
+	Service  Service
+	Postgres ReadEnvBD
 }
 
 type Service struct {
 	Port string `env:"OPTIONHUB_SERVICE_PORT"`
+}
+
+type ReadEnvBD struct {
+	User     string `env:"OPTIONHUB_SERVICE_POSTGRES_USER"`
+	Password string `env:"OPTIONHUB_SERVICE_POSTGRES_PASSWORD"`
+	Database string `env:"OPTIONHUB_SERVICE_POSTGRES_DB"`
+	Host     string `env:"OPTIONHUB_SERVICE_POSTGRES_HOST"`
+	Port     string `env:"OPTIONHUB_SERVICE_POSTGRES_PORT"`
 }
 
 func NewConfig() *Config {
