@@ -1,9 +1,9 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
 	"log"
 	"time"
 
@@ -50,12 +50,29 @@ func New(cfg *config.Config) (*Repository, error) {
 	return nil, err
 }
 
-func (r *Repository) AddedOS(id int, name string, userUID uuid.UUID) error {
+// пока без user_uuid (будет браться из токена)
+func (r *Repository) AddOS(ctx context.Context, name string) (int64, error) {
+	query := "INSERT INTO os(name, create_at) VALUES ($1, $2) RETURNING id"
 	createTime := time.Now()
+	var id int64
 
-	_, err := r.сonnection.Exec("INSERT INTO os(id, name, user_uuid, create_at) VALUES ($1, $2, $3 $4)", id, name, userUID, createTime)
+	err := r.сonnection.QueryRowContext(ctx, query, name, createTime).Scan(&id)
 	if err != nil {
-		return err
+		return 0, fmt.Errorf("cannot execute query, error: %v", err)
 	}
-	return nil
+	return id, nil
+}
+
+func (r Repository) GetOsById(ctx context.Context, id int64) (string, error) {
+	var os string
+	query := "SELECT name from os where id = $1"
+
+	err := r.сonnection.QueryRowContext(ctx, query, id).Scan(&os)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("cannot execute query, error: %v", err)
+	}
+	return os, nil
 }
