@@ -31,3 +31,7 @@ func (s *service) AddOs(ctx context.Context, in *optionhub_proto.AddIn) (*option
 	}
 	return &optionhub_proto.AddOut{Id: id, Value: in.Value}, nil
 }
+
+func (s *service) GetAllOs(ctx context.Context, in *optionhub_proto.AddIn) (*optionhub_proto.AddOut, error) {
+	return nil, nil
+}
