@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"log"
+
 	"optionhub-service/internal/config"
-	"optionhub-service/internal/repositore/db"
+	"optionhub-service/internal/repository/db"
 )
 
 func main() {
