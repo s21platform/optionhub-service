@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log"
 
 	"optionhub-service/internal/config"
@@ -13,7 +12,7 @@ func main() {
 
 	dbRepo, err := db.New(cfg)
 	if err != nil {
-		log.Fatal(errors.New("нет подключения к бд"))
+		log.Fatalf("Error initialize db repository: %v", err)
 	}
 
 	defer dbRepo.Close()
