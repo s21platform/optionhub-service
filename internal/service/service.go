@@ -2,36 +2,37 @@ package service
 
 import (
 	"context"
-	"fmt"
 	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
-	"optionhub-service/internal/repository/db"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-type service struct {
+type Service struct {
 	optionhub_proto.OptionhubServiceClient
-	db db.DbRepo
+	dbR DbRepo
 }
 
-func NewService(repo db.DbRepo) *service {
-	return &service{db: repo}
+func NewService(repo DbRepo) *Service {
+	return &Service{dbR: repo}
 }
 
-func (s *service) GetOsById(ctx context.Context, in *optionhub_proto.GetByIdIn) (*optionhub_proto.GetByIdOut, error) {
-	os, err := s.db.GetOsById(ctx, in.Id)
+func (s *Service) GetOsById(ctx context.Context, in *optionhub_proto.GetByIdIn) (*optionhub_proto.GetByIdOut, error) {
+	os, err := s.dbR.GetOsById(ctx, in.Id)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get os by id, err: %v", err)
+		return nil, status.Errorf(codes.NotFound, "cannot get os by id, err: %v", err)
 	}
 	return &optionhub_proto.GetByIdOut{Id: in.Id, Value: os}, nil
 }
 
-func (s *service) AddOs(ctx context.Context, in *optionhub_proto.AddIn) (*optionhub_proto.AddOut, error) {
-	id, err := s.db.AddOS(ctx, in.Value)
+func (s *Service) AddOs(ctx context.Context, in *optionhub_proto.AddIn) (*optionhub_proto.AddOut, error) {
+	id, err := s.dbR.AddOS(ctx, in.Value)
 	if err != nil {
-		return nil, fmt.Errorf("cannot add new os, err: %v", err)
+		return nil, status.Errorf(codes.Aborted, "cannot add new os, err: %v", err)
+
 	}
 	return &optionhub_proto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *service) GetAllOs(ctx context.Context, in *optionhub_proto.AddIn) (*optionhub_proto.AddOut, error) {
+func (s *Service) GetAllOs(ctx context.Context, in *optionhub_proto.AddIn) (*optionhub_proto.AddOut, error) {
 	return nil, nil
 }
