@@ -1,8 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"google.golang.org/grpc"
 	"log"
+	"net"
+	"optionhub-service/internal/service"
 
+	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/repository/db"
 )
@@ -13,6 +18,20 @@ func main() {
 	dbRepo, err := db.New(cfg)
 	if err != nil {
 		log.Fatalf("Error initialize db repository: %v", err)
+	}
+
+	opionhubService := service.NewService(dbRepo)
+
+	s := grpc.NewServer()
+	optionhub_proto.RegisterOptionhubServiceServer(s, opionhubService)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
+	if err != nil {
+		log.Printf("Cannot listen port: %s; Error: %s", cfg.Service.Port, err)
+	}
+
+	if err = s.Serve(lis); err != nil {
+		log.Printf("Cannot start service: %s; Error: %s", cfg.Service.Port, err)
 	}
 
 	defer dbRepo.Close()
