@@ -19,11 +19,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initialize db repository: %v", err)
 	}
+	defer dbRepo.Close()
 
-	opionhubService := service.NewService(dbRepo)
+	optionhubService := service.NewService(dbRepo)
 
 	s := grpc.NewServer()
-	optionhub_proto.RegisterOptionhubServiceServer(s, opionhubService)
+	optionhub_proto.RegisterOptionhubServiceServer(s, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {
@@ -33,6 +34,4 @@ func main() {
 	if err = s.Serve(lis); err != nil {
 		log.Printf("Cannot start service: %s; Error: %s", cfg.Service.Port, err)
 	}
-
-	defer dbRepo.Close()
 }
