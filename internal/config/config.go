@@ -26,7 +26,7 @@ func NewConfig() *Config {
 	cfg := &Config{}
 	err := cleanenv.ReadEnv(cfg)
 	if err != nil {
-		log.Fatalf("cannot load config, err, %v", err)
+		log.Fatalf("cannot load config, err: %v", err)
 	}
 	return cfg
 }

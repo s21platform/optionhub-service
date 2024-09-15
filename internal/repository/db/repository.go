@@ -51,9 +51,10 @@ func New(cfg *config.Config) (*Repository, error) {
 }
 
 // пока без user_uuid (будет браться из токена)
+// может сделать чтобы ос были уникальные?
 func (r *Repository) AddOS(ctx context.Context, name string) (int64, error) {
 	query := "INSERT INTO os(name, create_at) VALUES ($1, $2) RETURNING id"
-	createTime := time.Now()
+	createTime := time.Now().UTC()
 	var id int64
 
 	err := r.сonnection.QueryRowContext(ctx, query, name, createTime).Scan(&id)
