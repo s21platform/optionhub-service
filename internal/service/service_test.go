@@ -6,6 +6,8 @@ import (
 	"github.com/golang/mock/gomock"
 	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"optionhub-service/internal/service"
 	"testing"
 )
@@ -40,8 +42,11 @@ func TestServer_AddOS(t *testing.T) {
 
 		s := service.NewService(mockRepo)
 		_, err := s.AddOs(ctx, &optionhub_proto.AddIn{Value: osName})
-		assert.Error(t, err, expectedErr)
 
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Aborted, st.Code())
+		assert.Contains(t, st.Message(), "insert err")
 	})
 }
 
@@ -74,8 +79,10 @@ func TestServer_GetOsById(t *testing.T) {
 
 		s := service.NewService(mockRepo)
 		_, err := s.GetOsById(ctx, &optionhub_proto.GetByIdIn{Id: id})
-		assert.Error(t, err, expectedErr)
 
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.NotFound, st.Code())
+		assert.Contains(t, st.Message(), "get err")
 	})
-
 }
