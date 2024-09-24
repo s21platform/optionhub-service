@@ -6,7 +6,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/lib/pq v1.10.9
-	github.com/s21platform/optionhub-proto v0.0.0-20240820173945-d977bc5c751f
+	github.com/s21platform/optionhub-proto v1.0.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.65.0
 )
