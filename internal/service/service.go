@@ -173,3 +173,15 @@ func (s *Service) AddOs(ctx context.Context, in *optionhub_proto.AddIn) (*option
 	}
 	return &optionhub_proto.AddOut{Id: id, Value: in.Value}, nil
 }
+
+func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhub_proto.GetByNameIn) (*optionhub_proto.GetByNameOut, error) {
+	if len(in.Name) < 2 {
+		return nil, nil
+	}
+
+	records, err := s.dbR.GetOsBSearchName(ctx, in.Name)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "cannot get os by name, err: %v", err)
+	}
+	return records, nil
+}
