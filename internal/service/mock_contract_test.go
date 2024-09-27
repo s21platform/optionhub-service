@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 )
 
 // MockDbRepo is a mock of DbRepo interface.
@@ -47,6 +48,21 @@ func (m *MockDbRepo) AddOS(ctx context.Context, name string) (int64, error) {
 func (mr *MockDbRepoMockRecorder) AddOS(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name)
+}
+
+// GetOsBSearchName mocks base method.
+func (m *MockDbRepo) GetOsBSearchName(ctx context.Context, name string) (*optionhub_proto.GetByNameOut, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOsBSearchName", ctx, name)
+	ret0, _ := ret[0].(*optionhub_proto.GetByNameOut)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOsBSearchName indicates an expected call of GetOsBSearchName.
+func (mr *MockDbRepoMockRecorder) GetOsBSearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBSearchName", reflect.TypeOf((*MockDbRepo)(nil).GetOsBSearchName), ctx, name)
 }
 
 // GetOsById mocks base method.

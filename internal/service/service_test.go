@@ -86,3 +86,50 @@ func TestServer_GetOsById(t *testing.T) {
 		assert.Contains(t, st.Message(), "get err")
 	})
 }
+
+func TestServer_GetOsBySearchName(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := service.NewMockDbRepo(ctrl)
+
+	t.Run("get_by_name_ok", func(t *testing.T) {
+		search := "wi"
+		var expectedNames optionhub_proto.GetByNameOut
+		expectedNames.Values = append(expectedNames.Values, &optionhub_proto.Record{Value: "windows", Id: 1})
+
+		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(&expectedNames, nil)
+
+		s := service.NewService(mockRepo)
+		osNames, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+		assert.NoError(t, err)
+		assert.Equal(t, osNames, &expectedNames)
+	})
+
+	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		search := "w"
+
+		s := service.NewService(mockRepo)
+		osNames, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+		assert.NoError(t, err)
+		assert.Nil(t, osNames)
+	})
+
+	t.Run("get_by_name_err", func(t *testing.T) {
+		search := "wi"
+		expectedErr := errors.New("db err")
+
+		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(nil, expectedErr)
+
+		s := service.NewService(mockRepo)
+		_, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.NotFound, st.Code())
+		assert.Contains(t, st.Message(), "db err")
+	})
+}
