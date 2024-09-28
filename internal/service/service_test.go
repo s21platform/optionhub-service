@@ -97,16 +97,21 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	mockRepo := service.NewMockDbRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
-		search := "wi"
-		var expectedNames optionhub_proto.GetByNameOut
-		expectedNames.Values = append(expectedNames.Values, &optionhub_proto.Record{Value: "windows", Id: 1})
+		expectedNames := &optionhub_proto.GetByNameOut{
+			Values: []*optionhub_proto.Record{
+				{Id: 1, Value: "ubuntu"},
+				{Id: 2, Value: "ubuntuu"},
+				{Id: 5, Value: "ubububu"},
+			},
+		}
+		search := "ub"
 
-		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(&expectedNames, nil)
+		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(expectedNames, nil)
 
 		s := service.NewService(mockRepo)
 		osNames, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
 		assert.NoError(t, err)
-		assert.Equal(t, osNames, &expectedNames)
+		assert.Equal(t, osNames, expectedNames)
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {

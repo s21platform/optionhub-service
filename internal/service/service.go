@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -180,8 +181,24 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhub_proto.Get
 	}
 
 	records, err := s.dbR.GetOsBSearchName(ctx, in.Name)
+	fmt.Println(records)
+
+	res := optionhub_proto.GetByNameOut{}
+
+	resp := make([]*optionhub_proto.Record, 0, len(records))
+
+	for _, rec := range records {
+		resp = append(resp, &optionhub_proto.Record{
+			Id:    rec.Id,
+			Value: rec.Value,
+		})
+	}
+
+	res.Values = resp
+	fmt.Println(&res)
+
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "cannot get os by name, err: %v", err)
 	}
-	return records, nil
+	return &res, nil
 }

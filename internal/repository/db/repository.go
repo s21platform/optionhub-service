@@ -80,8 +80,8 @@ func (r *Repository) GetOsById(ctx context.Context, id int64) (string, error) {
 
 // лимит можно передавать как параметр позже
 // нужно возвращать то что начинается на name или все строки с совпадением?
-func (r *Repository) GetOsBSearchName(ctx context.Context, name string) (*optionhub_proto.GetByNameOut, error) {
-	var res optionhub_proto.GetByNameOut
+func (r *Repository) GetOsBSearchName(ctx context.Context, name string) ([]*optionhub_proto.Record, error) {
+	var records []*optionhub_proto.Record
 	searchString := "%" + name + "%"
 
 	query := "SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10"
@@ -89,15 +89,21 @@ func (r *Repository) GetOsBSearchName(ctx context.Context, name string) (*option
 	if err != nil {
 		return nil, fmt.Errorf("cannot configure query, error: %v", err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
-		var record optionhub_proto.Record
+		record := optionhub_proto.Record{}
 		err := rows.Scan(&record.Id, &record.Value)
 		if err != nil {
 			return nil, fmt.Errorf("cannot execute query, error: %v", err)
 		}
-		res.Values = append(res.Values, &record)
+		records = append(records, &record)
+		fmt.Println(&record)
 	}
 
-	return &res, nil
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %v", err)
+	}
+
+	return records, nil
 }
