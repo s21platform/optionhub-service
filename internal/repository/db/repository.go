@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"optionhub-service/internal/model"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -51,7 +52,6 @@ func New(cfg *config.Config) (*Repository, error) {
 }
 
 // пока без user_uuid (будет браться из токена)
-// может сделать чтобы ос были уникальные?
 func (r *Repository) AddOS(ctx context.Context, name string) (int64, error) {
 	query := "INSERT INTO os(name, create_at) VALUES ($1, $2) RETURNING id"
 	createTime := time.Now().UTC()
@@ -64,7 +64,7 @@ func (r *Repository) AddOS(ctx context.Context, name string) (int64, error) {
 	return id, nil
 }
 
-func (r Repository) GetOsById(ctx context.Context, id int64) (string, error) {
+func (r *Repository) GetOsById(ctx context.Context, id int64) (string, error) {
 	var os string
 	query := "SELECT name from os where id = $1"
 
@@ -76,4 +76,24 @@ func (r Repository) GetOsById(ctx context.Context, id int64) (string, error) {
 		return "", fmt.Errorf("cannot execute query, error: %v", err)
 	}
 	return os, nil
+}
+
+// возвращать то что начинается с name или все совпадения?
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
+	var res []model.Os
+	searchString := "%" + name + "%"
+	query := "SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10"
+	rows, err := r.сonnection.QueryContext(ctx, query, searchString)
+	if err != nil {
+		return nil, fmt.Errorf("cannot configure query, error: %v", err)
+	}
+	for rows.Next() {
+		var os model.Os
+		err := rows.Scan(&os.Id, &os.Name)
+		if err != nil {
+			return nil, fmt.Errorf("cannot execute query, error: %v", err)
+		}
+		res = append(res, os)
+	}
+	return res, nil
 }

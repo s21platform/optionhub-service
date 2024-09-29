@@ -6,6 +6,7 @@ package service
 
 import (
 	context "context"
+	model "optionhub-service/internal/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -62,4 +63,19 @@ func (m *MockDbRepo) GetOsById(ctx context.Context, id int64) (string, error) {
 func (mr *MockDbRepoMockRecorder) GetOsById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsById", reflect.TypeOf((*MockDbRepo)(nil).GetOsById), ctx, id)
+}
+
+// GetOsBySearchName mocks base method.
+func (m *MockDbRepo) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
+	ret0, _ := ret[0].([]model.Os)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOsBySearchName indicates an expected call of GetOsBySearchName.
+func (mr *MockDbRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDbRepo)(nil).GetOsBySearchName), ctx, name)
 }
