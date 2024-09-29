@@ -185,11 +185,11 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}
 
 	var records optionhubproto.GetByNameOut
-	for _, record := range os {
+	for _, osObj := range os {
 		records.Values = append(records.Values,
 			&optionhubproto.Record{
-				Id:    record.Id,
-				Value: record.Name,
+				Id:    osObj.Id,
+				Value: osObj.Name,
 			})
 
 	}
