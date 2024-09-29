@@ -13,6 +13,7 @@ WORKDIR /app
 # Скопируем файлы миграций
 COPY . ./migrations
 
+
 # Скопируем entrypoint скрипт
 COPY entrypoint_up_all.sh /app/entrypoint_up_all.sh
 COPY entrypoint_up_one.sh /app/entrypoint_up_one.sh
