@@ -6,10 +6,10 @@ package service
 
 import (
 	context "context"
+	model "optionhub-service/internal/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 )
 
 // MockDbRepo is a mock of DbRepo interface.
@@ -50,21 +50,6 @@ func (mr *MockDbRepoMockRecorder) AddOS(ctx, name interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name)
 }
 
-// GetOsBSearchName mocks base method.
-func (m *MockDbRepo) GetOsBSearchName(ctx context.Context, name string) (*optionhub_proto.GetByNameOut, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOsBSearchName", ctx, name)
-	ret0, _ := ret[0].(*optionhub_proto.GetByNameOut)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetOsBSearchName indicates an expected call of GetOsBSearchName.
-func (mr *MockDbRepoMockRecorder) GetOsBSearchName(ctx, name interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBSearchName", reflect.TypeOf((*MockDbRepo)(nil).GetOsBSearchName), ctx, name)
-}
-
 // GetOsById mocks base method.
 func (m *MockDbRepo) GetOsById(ctx context.Context, id int64) (string, error) {
 	m.ctrl.T.Helper()
@@ -78,4 +63,19 @@ func (m *MockDbRepo) GetOsById(ctx context.Context, id int64) (string, error) {
 func (mr *MockDbRepoMockRecorder) GetOsById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsById", reflect.TypeOf((*MockDbRepo)(nil).GetOsById), ctx, id)
+}
+
+// GetOsBySearchName mocks base method.
+func (m *MockDbRepo) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
+	ret0, _ := ret[0].([]model.Os)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOsBySearchName indicates an expected call of GetOsBySearchName.
+func (mr *MockDbRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDbRepo)(nil).GetOsBySearchName), ctx, name)
 }

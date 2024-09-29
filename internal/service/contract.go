@@ -3,11 +3,11 @@ package service
 
 import (
 	"context"
-	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	"optionhub-service/internal/model"
 )
 
 type DbRepo interface {
 	AddOS(ctx context.Context, name string) (int64, error)
 	GetOsById(ctx context.Context, id int64) (string, error)
-	GetOsBSearchName(ctx context.Context, name string) (*optionhub_proto.GetByNameOut, error)
+	GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error)
 }

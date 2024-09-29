@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
-	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"optionhub-service/internal/model"
 	"optionhub-service/internal/service"
 	"testing"
 )
@@ -28,9 +29,9 @@ func TestServer_AddOS(t *testing.T) {
 		mockRepo.EXPECT().AddOS(gomock.Any(), osName).Return(expectedId, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddOs(ctx, &optionhub_proto.AddIn{Value: osName})
+		id, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
 		assert.NoError(t, err)
-		assert.Equal(t, id, &optionhub_proto.AddOut{Id: expectedId, Value: osName})
+		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedId, Value: osName})
 	})
 
 	t.Run("add_err", func(t *testing.T) {
@@ -41,7 +42,7 @@ func TestServer_AddOS(t *testing.T) {
 		mockRepo.EXPECT().AddOS(gomock.Any(), osName).Return(expectedId, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddOs(ctx, &optionhub_proto.AddIn{Value: osName})
+		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -66,9 +67,9 @@ func TestServer_GetOsById(t *testing.T) {
 		mockRepo.EXPECT().GetOsById(gomock.Any(), id).Return(expectedOsName, nil)
 
 		s := service.NewService(mockRepo)
-		osName, err := s.GetOsById(ctx, &optionhub_proto.GetByIdIn{Id: id})
+		osName, err := s.GetOsById(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
-		assert.Equal(t, osName, &optionhub_proto.GetByIdOut{Id: id, Value: expectedOsName})
+		assert.Equal(t, osName, &optionhubproto.GetByIdOut{Id: id, Value: expectedOsName})
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
@@ -78,7 +79,7 @@ func TestServer_GetOsById(t *testing.T) {
 		mockRepo.EXPECT().GetOsById(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetOsById(ctx, &optionhub_proto.GetByIdIn{Id: id})
+		_, err := s.GetOsById(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -97,8 +98,13 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	mockRepo := service.NewMockDbRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
-		expectedNames := &optionhub_proto.GetByNameOut{
-			Values: []*optionhub_proto.Record{
+		expectedNames := []model.Os{
+			{Id: 1, Name: "ubuntu"},
+			{Id: 2, Name: "ubuntuu"},
+			{Id: 5, Name: "ubububu"},
+		}
+		expectedRes := &optionhubproto.GetByNameOut{
+			Values: []*optionhubproto.Record{
 				{Id: 1, Value: "ubuntu"},
 				{Id: 2, Value: "ubuntuu"},
 				{Id: 5, Value: "ubububu"},
@@ -106,19 +112,19 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		}
 		search := "ub"
 
-		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(expectedNames, nil)
+		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(expectedNames, nil)
 
 		s := service.NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 		assert.NoError(t, err)
-		assert.Equal(t, osNames, expectedNames)
+		assert.Equal(t, osNames, expectedRes)
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
 		search := "w"
 
 		s := service.NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 		assert.NoError(t, err)
 		assert.Nil(t, osNames)
 	})
@@ -127,10 +133,10 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		search := "wi"
 		expectedErr := errors.New("db err")
 
-		mockRepo.EXPECT().GetOsBSearchName(gomock.Any(), search).Return(nil, expectedErr)
+		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(nil, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetOsBySearchName(ctx, &optionhub_proto.GetByNameIn{Name: search})
+		_, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)

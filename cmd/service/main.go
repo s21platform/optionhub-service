@@ -7,7 +7,7 @@ import (
 	"net"
 	"optionhub-service/internal/service"
 
-	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/repository/db"
 )
@@ -24,7 +24,7 @@ func main() {
 	optionhubService := service.NewService(dbRepo)
 
 	s := grpc.NewServer()
-	optionhub_proto.RegisterOptionhubServiceServer(s, optionhubService)
+	optionhubproto.RegisterOptionhubServiceServer(s, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {

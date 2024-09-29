@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	optionhub_proto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"log"
+	"optionhub-service/internal/model"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -79,8 +79,8 @@ func (r *Repository) GetOsById(ctx context.Context, id int64) (string, error) {
 }
 
 // возвращать то что начинается с name или все совпадения?
-func (r *Repository) GetOsBSearchName(ctx context.Context, name string) (*optionhub_proto.GetByNameOut, error) {
-	var res optionhub_proto.GetByNameOut
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
+	var res []model.Os
 	searchString := "%" + name + "%"
 	query := "SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10"
 	rows, err := r.сonnection.QueryContext(ctx, query, searchString)
@@ -88,12 +88,12 @@ func (r *Repository) GetOsBSearchName(ctx context.Context, name string) (*option
 		return nil, fmt.Errorf("cannot configure query, error: %v", err)
 	}
 	for rows.Next() {
-		var record optionhub_proto.Record
-		err := rows.Scan(&record.Id, &record.Value)
+		var os model.Os
+		err := rows.Scan(&os.Id, &os.Name)
 		if err != nil {
 			return nil, fmt.Errorf("cannot execute query, error: %v", err)
 		}
-		res.Values = append(res.Values, &record)
+		res = append(res, os)
 	}
-	return &res, nil
+	return res, nil
 }
