@@ -1,6 +1,6 @@
 package model
 
-type Os struct {
-	Id   int64
-	Name string
-}
+//type Os struct {
+//	Id   int64
+//	Name string
+//}
