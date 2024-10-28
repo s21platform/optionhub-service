@@ -5,7 +5,10 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"optionhub-service/internal/infra"
 	"optionhub-service/internal/service"
+
+	"github.com/s21platform/metrics-lib/pkg"
 
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"optionhub-service/internal/config"
@@ -21,9 +24,19 @@ func main() {
 	}
 	defer dbRepo.Close()
 
+	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, "optionhub", cfg.Platform.Env)
+	if err != nil {
+		log.Fatalln("fail to create metrics:", err)
+	}
+	defer metrics.Disconnect()
+
 	optionhubService := service.NewService(dbRepo)
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			infra.MetricsInterceptor(metrics),
+		),
+	)
 	optionhubproto.RegisterOptionhubServiceServer(s, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
