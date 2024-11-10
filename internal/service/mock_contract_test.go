@@ -36,18 +36,18 @@ func (m *MockDbRepo) EXPECT() *MockDbRepoMockRecorder {
 }
 
 // AddOS mocks base method.
-func (m *MockDbRepo) AddOS(ctx context.Context, name string) (int64, error) {
+func (m *MockDbRepo) AddOS(ctx context.Context, name, uuid string) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddOS", ctx, name)
+	ret := m.ctrl.Call(m, "AddOS", ctx, name, uuid)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddOS indicates an expected call of AddOS.
-func (mr *MockDbRepoMockRecorder) AddOS(ctx, name interface{}) *gomock.Call {
+func (mr *MockDbRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name, uuid)
 }
 
 // GetOsById mocks base method.

@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"optionhub-service/internal/config"
 	"optionhub-service/internal/model"
 	"optionhub-service/internal/service"
 	"testing"
@@ -17,6 +18,8 @@ func TestServer_AddOS(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	uuid := "test-uuid"
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -26,7 +29,7 @@ func TestServer_AddOS(t *testing.T) {
 		osName := "ubuntu"
 		var expectedId int64 = 1
 
-		mockRepo.EXPECT().AddOS(gomock.Any(), osName).Return(expectedId, nil)
+		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedId, nil)
 
 		s := service.NewService(mockRepo)
 		id, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
@@ -39,7 +42,7 @@ func TestServer_AddOS(t *testing.T) {
 		var expectedId int64 = 0
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddOS(gomock.Any(), osName).Return(expectedId, expectedErr)
+		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedId, expectedErr)
 
 		s := service.NewService(mockRepo)
 		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
