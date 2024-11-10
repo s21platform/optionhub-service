@@ -5,6 +5,7 @@ import (
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"optionhub-service/internal/config"
 )
 
 type Service struct {
@@ -166,10 +167,14 @@ func (s *Service) GetOsById(ctx context.Context, in *optionhubproto.GetByIdIn) (
 }
 
 func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	id, err := s.dbR.AddOS(ctx, in.Value)
+	uuid, ok := ctx.Value(config.KeyUUID).(string)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "cannot find uuid")
+	}
+
+	id, err := s.dbR.AddOS(ctx, in.Value, uuid)
 	if err != nil {
 		return nil, status.Errorf(codes.Aborted, "cannot add new os, err: %v", err)
-
 	}
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }

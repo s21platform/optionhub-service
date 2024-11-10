@@ -51,13 +51,12 @@ func New(cfg *config.Config) (*Repository, error) {
 	return nil, err
 }
 
-// пока без user_uuid (будет браться из токена)
-func (r *Repository) AddOS(ctx context.Context, name string) (int64, error) {
-	query := "INSERT INTO os(name, create_at) VALUES ($1, $2) RETURNING id"
+func (r *Repository) AddOS(ctx context.Context, name, uuid string) (int64, error) {
+	query := "INSERT INTO os(name, create_at, is_moderate, user_uuid) VALUES ($1, $2, $3, $4) RETURNING id"
 	createTime := time.Now().UTC()
 	var id int64
 
-	err := r.сonnection.QueryRowContext(ctx, query, name, createTime).Scan(&id)
+	err := r.сonnection.QueryRowContext(ctx, query, name, createTime, true, uuid).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("cannot execute query, error: %v", err)
 	}

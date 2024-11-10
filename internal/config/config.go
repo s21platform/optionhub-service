@@ -8,6 +8,7 @@ import (
 type key string
 
 const KeyMetrics = key("metrics")
+const KeyUUID key = key("uuid")
 
 type Config struct {
 	Service  Service
