@@ -34,6 +34,7 @@ func main() {
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
+			infra.UnaryInterceptor,
 			infra.MetricsInterceptor(metrics),
 		),
 	)
