@@ -21,11 +21,8 @@ func UnaryInterceptor(
 	}
 
 	userIDs, ok := md["uuid"]
-	if !ok || len(userIDs) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "no uuid in metadata")
-	}
-	if len(userIDs) > 1 {
-		return nil, status.Errorf(codes.Unauthenticated, "multiple uuids are not alowed in metadata")
+	if !ok || len(userIDs) != 1 {
+		return nil, status.Errorf(codes.Unauthenticated, "no uuid or more than one in metadata")
 	}
 
 	ctx = context.WithValue(ctx, config.KeyUUID, userIDs[0])
