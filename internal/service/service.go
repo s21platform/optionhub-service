@@ -2,156 +2,17 @@ package service
 
 import (
 	"context"
+	"optionhub-service/internal/config"
+
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"optionhub-service/internal/config"
 )
 
 type Service struct {
 	//optionhubproto.OptionhubServiceClient
 	optionhubproto.UnimplementedOptionhubServiceServer
 	dbR DbRepo
-}
-
-func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetOsById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteOsById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetWorkPlaceById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetAllWorkPlace(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) AddWorkPlace(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetWorkPlaceById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteWorkPlaceById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetStudyPlaceById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetAllStudyPlace(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) AddStudyPlace(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetStudyPlaceById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteStudyPlaceById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetHobbyById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetHobbyPlace(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) AddHobby(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetHobbyById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteHobbyById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetSkillById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetSkillPlace(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) AddSkill(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetSkillById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteSkillById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetCityById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetCityPlace(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) AddCity(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) SetCityById(ctx context.Context, in *optionhubproto.SetByIdIn) (*optionhubproto.SetByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteCityById(ctx context.Context, in *optionhubproto.DeleteByIdIn) (*optionhubproto.DeleteByIdOut, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewService(repo DbRepo) *Service {
