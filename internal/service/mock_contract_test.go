@@ -12,7 +12,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockDbRepo is a mock of DbRepo interface.
+// MockDbRepo is a mock of DBRepo interface.
 type MockDbRepo struct {
 	ctrl     *gomock.Controller
 	recorder *MockDbRepoMockRecorder
@@ -50,10 +50,10 @@ func (mr *MockDbRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name, uuid)
 }
 
-// GetOsById mocks base method.
-func (m *MockDbRepo) GetOsById(ctx context.Context, id int64) (string, error) {
+// GetOsByID mocks base method.
+func (m *MockDbRepo) GetOsByID(ctx context.Context, id int64) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOsById", ctx, id)
+	ret := m.ctrl.Call(m, "GetOsByID", ctx, id)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -62,7 +62,7 @@ func (m *MockDbRepo) GetOsById(ctx context.Context, id int64) (string, error) {
 // GetOsById indicates an expected call of GetOsById.
 func (mr *MockDbRepoMockRecorder) GetOsById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsById", reflect.TypeOf((*MockDbRepo)(nil).GetOsById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsByID", reflect.TypeOf((*MockDbRepo)(nil).GetOsByID), ctx, id)
 }
 
 // GetOsBySearchName mocks base method.

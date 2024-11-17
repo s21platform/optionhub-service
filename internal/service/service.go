@@ -10,20 +10,21 @@ import (
 )
 
 type Service struct {
-	//optionhubproto.OptionhubServiceClient
+	// optionhubproto.OptionhubServiceClient
 	optionhubproto.UnimplementedOptionhubServiceServer
-	dbR DbRepo
+	dbR DBRepo
 }
 
-func NewService(repo DbRepo) *Service {
+func NewService(repo DBRepo) *Service {
 	return &Service{dbR: repo}
 }
 
-func (s *Service) GetOsById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
-	os, err := s.dbR.GetOsById(ctx, in.Id)
+func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	os, err := s.dbR.GetOsByID(ctx, in.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "cannot get os by id, err: %v", err)
 	}
+
 	return &optionhubproto.GetByIdOut{Id: in.Id, Value: os}, nil
 }
 
@@ -37,10 +38,12 @@ func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionh
 	if err != nil {
 		return nil, status.Errorf(codes.Aborted, "cannot add new os, err: %v", err)
 	}
+
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut,
+	error) {
 	if len(in.Name) < 2 {
 		return nil, nil
 	}
@@ -54,10 +57,9 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	for _, osObj := range os {
 		records.Values = append(records.Values,
 			&optionhubproto.Record{
-				Id:    osObj.Id,
+				Id:    osObj.ID,
 				Value: osObj.Name,
 			})
-
 	}
 
 	return &records, nil
