@@ -66,10 +66,10 @@ func (mr *MockDbRepoMockRecorder) GetOsById(ctx, id interface{}) *gomock.Call {
 }
 
 // GetOsBySearchName mocks base method.
-func (m *MockDbRepo) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
+func (m *MockDbRepo) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
-	ret0, _ := ret[0].([]model.Os)
+	ret0, _ := ret[0].([]model.OS)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

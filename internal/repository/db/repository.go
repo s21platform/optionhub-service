@@ -90,8 +90,8 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 }
 
 // GetOsBySearchName Возвращать то что начинается с name или все совпадения?
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.Os, error) {
-	var res []model.Os
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
+	var res []model.OS
 
 	searchString := "%" + name + "%"
 
@@ -106,7 +106,7 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]mode
 	defer rows.Close()
 
 	for rows.Next() {
-		var os model.Os
+		var os model.OS
 		err := rows.Scan(&os.ID, &os.Name)
 
 		if err != nil {
