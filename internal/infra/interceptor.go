@@ -2,11 +2,12 @@ package infra
 
 import (
 	"context"
+	"optionhub-service/internal/config"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"optionhub-service/internal/config"
 )
 
 func UnaryInterceptor(
@@ -15,7 +16,9 @@ func UnaryInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
+	_ = info
 	md, ok := metadata.FromIncomingContext(ctx)
+
 	if !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "no info in metadata")
 	}
@@ -26,5 +29,6 @@ func UnaryInterceptor(
 	}
 
 	ctx = context.WithValue(ctx, config.KeyUUID, userIDs[0])
+
 	return handler(ctx, req)
 }

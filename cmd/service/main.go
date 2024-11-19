@@ -2,17 +2,19 @@ package main
 
 import (
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"optionhub-service/internal/infra"
 	"optionhub-service/internal/service"
 
+	"google.golang.org/grpc"
+
 	"github.com/s21platform/metrics-lib/pkg"
 
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/repository/db"
+
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 )
 
 func main() {

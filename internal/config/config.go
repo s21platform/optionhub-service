@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
 	"log"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type key string
@@ -35,14 +36,16 @@ type Metrics struct {
 }
 
 type Platform struct {
-	Env string `env:"ENV"` //окружение (stage)
+	Env string `env:"ENV"` // окружение (stage)
 }
 
 func NewConfig() *Config {
 	cfg := &Config{}
 	err := cleanenv.ReadEnv(cfg)
+
 	if err != nil {
 		log.Fatalf("cannot load config, err: %v", err)
 	}
+
 	return cfg
 }
