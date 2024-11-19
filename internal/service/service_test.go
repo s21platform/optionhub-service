@@ -1,4 +1,4 @@
-package service_test
+package service_test //nolint:typecheck
 
 import (
 	"context"
