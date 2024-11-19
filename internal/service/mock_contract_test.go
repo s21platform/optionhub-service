@@ -6,37 +6,37 @@ package service
 
 import (
 	context "context"
-	model "optionhub-service/internal/model"
+	os "optionhub-service/internal/model/os"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockDbRepo is a mock of DBRepo interface.
-type MockDbRepo struct {
+// MockDBRepo is a mock of DBRepo interface.
+type MockDBRepo struct {
 	ctrl     *gomock.Controller
-	recorder *MockDbRepoMockRecorder
+	recorder *MockDBRepoMockRecorder
 }
 
-// MockDbRepoMockRecorder is the mock recorder for MockDbRepo.
-type MockDbRepoMockRecorder struct {
-	mock *MockDbRepo
+// MockDBRepoMockRecorder is the mock recorder for MockDBRepo.
+type MockDBRepoMockRecorder struct {
+	mock *MockDBRepo
 }
 
-// NewMockDbRepo creates a new mock instance.
-func NewMockDbRepo(ctrl *gomock.Controller) *MockDbRepo {
-	mock := &MockDbRepo{ctrl: ctrl}
-	mock.recorder = &MockDbRepoMockRecorder{mock}
+// NewMockDBRepo creates a new mock instance.
+func NewMockDBRepo(ctrl *gomock.Controller) *MockDBRepo {
+	mock := &MockDBRepo{ctrl: ctrl}
+	mock.recorder = &MockDBRepoMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDbRepo) EXPECT() *MockDbRepoMockRecorder {
+func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
 // AddOS mocks base method.
-func (m *MockDbRepo) AddOS(ctx context.Context, name, uuid string) (int64, error) {
+func (m *MockDBRepo) AddOS(ctx context.Context, name, uuid string) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddOS", ctx, name, uuid)
 	ret0, _ := ret[0].(int64)
@@ -45,13 +45,13 @@ func (m *MockDbRepo) AddOS(ctx context.Context, name, uuid string) (int64, error
 }
 
 // AddOS indicates an expected call of AddOS.
-func (mr *MockDbRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDbRepo)(nil).AddOS), ctx, name, uuid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDBRepo)(nil).AddOS), ctx, name, uuid)
 }
 
 // GetOsByID mocks base method.
-func (m *MockDbRepo) GetOsByID(ctx context.Context, id int64) (string, error) {
+func (m *MockDBRepo) GetOsByID(ctx context.Context, id int64) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOsByID", ctx, id)
 	ret0, _ := ret[0].(string)
@@ -59,23 +59,23 @@ func (m *MockDbRepo) GetOsByID(ctx context.Context, id int64) (string, error) {
 	return ret0, ret1
 }
 
-// GetOsById indicates an expected call of GetOsById.
-func (mr *MockDbRepoMockRecorder) GetOsById(ctx, id interface{}) *gomock.Call {
+// GetOsByID indicates an expected call of GetOsByID.
+func (mr *MockDBRepoMockRecorder) GetOsByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsByID", reflect.TypeOf((*MockDbRepo)(nil).GetOsByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsByID", reflect.TypeOf((*MockDBRepo)(nil).GetOsByID), ctx, id)
 }
 
 // GetOsBySearchName mocks base method.
-func (m *MockDbRepo) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
+func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) ([]os.Info, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
-	ret0, _ := ret[0].([]model.OS)
+	ret0, _ := ret[0].([]os.Info)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetOsBySearchName indicates an expected call of GetOsBySearchName.
-func (mr *MockDbRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
+func (mr *MockDBRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDbRepo)(nil).GetOsBySearchName), ctx, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetOsBySearchName), ctx, name)
 }

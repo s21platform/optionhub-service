@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"optionhub-service/internal/config"
-	"optionhub-service/internal/model"
+	"optionhub-service/internal/model/os"
 	"optionhub-service/internal/service"
 	"testing"
 
@@ -107,7 +107,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	mockRepo := service.NewMockDbRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
-		expectedNames := []model.OS{
+		expectedNames := []os.Info{
 			{ID: 1, Name: "ubuntu"},
 			{ID: 2, Name: "ubuntuu"},
 			{ID: 5, Name: "ubububu"},

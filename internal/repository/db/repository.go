@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"optionhub-service/internal/model"
+	"optionhub-service/internal/model/os"
 	"time"
 
 	"optionhub-service/internal/config"
@@ -90,8 +90,8 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 }
 
 // GetOsBySearchName Возвращать то что начинается с name или все совпадения?
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
-	var res []model.OS
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]os.Info, error) {
+	var res []os.Info
 
 	searchString := "%" + name + "%"
 
@@ -106,14 +106,14 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]mode
 	defer rows.Close()
 
 	for rows.Next() {
-		var os model.OS
-		err := rows.Scan(&os.ID, &os.Name)
+		var OS os.Info
+		err := rows.Scan(&OS.ID, &OS.Name)
 
 		if err != nil {
 			return nil, fmt.Errorf("cannot execute query, error: %v", err)
 		}
 
-		res = append(res, os)
+		res = append(res, OS)
 	}
 
 	if err := rows.Err(); err != nil {
