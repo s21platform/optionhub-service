@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"optionhub-service/internal/model"
 	"time"
 
 	"optionhub-service/internal/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 )
 
 type Repository struct {
@@ -89,9 +89,8 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 	return os, nil
 }
 
-// GetOsBySearchName Возвращать то что начинается с name или все совпадения?
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
-	var res []model.OS
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]*optionhubproto.Record, error) {
+	var res []*optionhubproto.Record
 
 	searchString := "%" + name + "%"
 
@@ -103,4 +102,17 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]mode
 	}
 
 	return res, nil
+}
+
+func (r *Repository) GetAllOs() ([]*optionhubproto.Record, error) {
+	var OSList []*optionhubproto.Record
+
+	query := `SELECT id, name FROM os`
+
+	err := r.connection.Select(&OSList, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch OS data from db: %w", err)
+	}
+
+	return OSList, nil
 }

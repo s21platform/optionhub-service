@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"optionhub-service/internal/config"
 
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
@@ -44,23 +45,21 @@ func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionh
 
 func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut,
 	error) {
-	if len(in.Name) < 2 {
-		return nil, nil
-	}
-
-	os, err := s.dbR.GetOsBySearchName(ctx, in.Name)
+	OS, err := s.dbR.GetOsBySearchName(ctx, in.Name)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "cannot get os by name, err: %v", err)
 	}
 
-	var records optionhubproto.GetByNameOut
-	for _, osObj := range os {
-		records.Values = append(records.Values,
-			&optionhubproto.Record{
-				Id:    osObj.ID,
-				Value: osObj.Name,
-			})
+	return &optionhubproto.GetByNameOut{Values: OS}, nil
+}
+
+func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
+	_, _ = ctx, in
+
+	OSList, err := s.dbR.GetAllOs()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all os list: %w", err)
 	}
 
-	return &records, nil
+	return &optionhubproto.GetAllOut{Values: OSList}, nil
 }

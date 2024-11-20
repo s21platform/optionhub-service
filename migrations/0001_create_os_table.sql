@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS os (
     name VARCHAR,
     create_at TIMESTAMP DEFAULT NOW(),
     is_moderate BOOLEAN DEFAULT FALSE,
-    user_uuid VARCHAR
+    user_uuid UUID NOT NULL
 );
 
 -- +goose Down
