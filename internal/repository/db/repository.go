@@ -89,7 +89,7 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 	return os, nil
 }
 
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (*model.OSList, error) {
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (model.OSList, error) {
 	var res model.OSList
 
 	searchString := "%" + name + "%"
@@ -101,10 +101,10 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (*model
 		return nil, fmt.Errorf("cannot execute query, error: %v", err)
 	}
 
-	return &res, nil
+	return res, nil
 }
 
-func (r *Repository) getOsPreview(ctx context.Context) (*model.OSList, error) {
+func (r *Repository) getOsPreview(ctx context.Context) (model.OSList, error) {
 	var res model.OSList
 
 	query := `SELECT id, name FROM os LIMIT 10`
@@ -114,10 +114,10 @@ func (r *Repository) getOsPreview(ctx context.Context) (*model.OSList, error) {
 		return nil, fmt.Errorf("cannot execute query, error: %v", err)
 	}
 
-	return &res, nil
+	return res, nil
 }
 
-func (r *Repository) GetAllOs() (*model.OSList, error) {
+func (r *Repository) GetAllOs() (model.OSList, error) {
 	var OSList model.OSList
 
 	query := `SELECT id, name FROM os`
@@ -127,5 +127,5 @@ func (r *Repository) GetAllOs() (*model.OSList, error) {
 		return nil, fmt.Errorf("failed to fetch OS data from db: %w", err)
 	}
 
-	return &OSList, nil
+	return OSList, nil
 }
