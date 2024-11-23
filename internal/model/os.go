@@ -9,10 +9,10 @@ type OS struct {
 
 type OSList []OS
 
-func (o OSList) FromDTO() []*optionhub.Record {
-	result := make([]*optionhub.Record, 0, len(o))
+func (o *OSList) FromDTO() []*optionhub.Record {
+	result := make([]*optionhub.Record, 0, len(*o))
 
-	for _, avatar := range o {
+	for _, avatar := range *o {
 		result = append(result, avatar.ToProto())
 	}
 

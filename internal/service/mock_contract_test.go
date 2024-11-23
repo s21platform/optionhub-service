@@ -51,10 +51,10 @@ func (mr *MockDBRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Cal
 }
 
 // GetAllOs mocks base method.
-func (m *MockDBRepo) GetAllOs() (model.OSList, error) {
+func (m *MockDBRepo) GetAllOs() (*model.OSList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllOs")
-	ret0, _ := ret[0].(model.OSList)
+	ret0, _ := ret[0].(*model.OSList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -81,10 +81,10 @@ func (mr *MockDBRepoMockRecorder) GetOsByID(ctx, id interface{}) *gomock.Call {
 }
 
 // GetOsBySearchName mocks base method.
-func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (model.OSList, error) {
+func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (*model.OSList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
-	ret0, _ := ret[0].(model.OSList)
+	ret0, _ := ret[0].(*model.OSList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
