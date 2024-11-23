@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"optionhub-service/internal/model"
 	"time"
 
 	"optionhub-service/internal/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 )
 
 type Repository struct {
@@ -89,8 +89,8 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 	return os, nil
 }
 
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]*optionhubproto.Record, error) {
-	var res []*optionhubproto.Record
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (model.OSList, error) {
+	var res model.OSList
 
 	searchString := "%" + name + "%"
 
@@ -104,8 +104,21 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]*opt
 	return res, nil
 }
 
-func (r *Repository) GetAllOs() ([]*optionhubproto.Record, error) {
-	var OSList []*optionhubproto.Record
+func (r *Repository) getOsPreview(ctx context.Context) (model.OSList, error) {
+	var res model.OSList
+
+	query := `SELECT id, name FROM os LIMIT 10`
+
+	err := r.connection.SelectContext(ctx, &res, query)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute query, error: %v", err)
+	}
+
+	return res, nil
+}
+
+func (r *Repository) GetAllOs() (model.OSList, error) {
+	var OSList model.OSList
 
 	query := `SELECT id, name FROM os`
 

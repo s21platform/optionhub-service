@@ -28,8 +28,7 @@ func main() {
 
 	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, "optionhub", cfg.Platform.Env)
 	if err != nil {
-		//nolint: gocritic
-		log.Fatalln("fail to create metrics:", err)
+		log.Fatalf("fail to create metrics: %v", err)
 	}
 	defer metrics.Disconnect()
 

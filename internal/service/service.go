@@ -11,7 +11,6 @@ import (
 )
 
 type Service struct {
-	// optionhubproto.OptionhubServiceClient
 	optionhubproto.UnimplementedOptionhubServiceServer
 	dbR DBRepo
 }
@@ -50,7 +49,9 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 		return nil, status.Errorf(codes.NotFound, "cannot get os by name, err: %v", err)
 	}
 
-	return &optionhubproto.GetByNameOut{Values: OS}, nil
+	return &optionhubproto.GetByNameOut{
+		Values: OS.FromDTO(),
+	}, nil
 }
 
 func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.GetAllIn) (*optionhubproto.GetAllOut, error) {
@@ -61,5 +62,7 @@ func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.GetAllIn) (*o
 		return nil, fmt.Errorf("failed to get all os list: %w", err)
 	}
 
-	return &optionhubproto.GetAllOut{Values: OSList}, nil
+	return &optionhubproto.GetAllOut{
+		Values: OSList.FromDTO(),
+	}, nil
 }
