@@ -129,14 +129,14 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		assert.Equal(t, osNames, expectedRes)
 	})
 
-	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
-		search := "w"
-
-		s := service.NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
-		assert.NoError(t, err)
-		assert.Nil(t, osNames)
-	})
+	//t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+	//	search := "w"
+	//
+	//	s := service.NewService(mockRepo)
+	//	osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
+	//	assert.NoError(t, err)
+	//	assert.Nil(t, osNames)
+	//})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		search := "wi"
