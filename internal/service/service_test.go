@@ -107,7 +107,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
-		expectedNames := []model.OS{
+		expectedNames := []model.CategoryItem{
 			{ID: 1, Name: "ubuntu"},
 			{ID: 2, Name: "ubuntuu"},
 			{ID: 5, Name: "ubububu"},
