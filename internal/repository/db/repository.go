@@ -11,33 +11,12 @@ import (
 
 	"optionhub-service/internal/config"
 
-	_ "github.com/lib/pq" // for postgres
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
 )
 
 type Repository struct {
-	connection *sql.DB
-}
-
-func connect(cfg *config.Config) (*Repository, error) {
-	// Connect db
-	conStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
-		cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Database, cfg.Postgres.Host, cfg.Postgres.Port)
-
-	db, err := sql.Open("postgres", conStr)
-	if err != nil {
-		return nil, fmt.Errorf("sql.Open: %w", err)
-	}
-
-	// Сhecking connection db
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("db.Ping: %w", err)
-	}
-
-	return &Repository{db}, nil
-}
-
-func (r *Repository) Close() {
-	r.connection.Close()
+	connection *sqlx.DB
 }
 
 func New(cfg *config.Config) (*Repository, error) {
@@ -48,23 +27,44 @@ func New(cfg *config.Config) (*Repository, error) {
 	for i := 0; i < 5; i++ {
 		repo, err = connect(cfg)
 		if err == nil {
-			return repo, nil
+			break
 		}
 
-		log.Println(err)
+		log.Println("failed to connect to database: ", err)
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	return nil, err
+	return repo, err
+}
+
+func connect(cfg *config.Config) (*Repository, error) {
+	conStr := fmt.Sprintf(
+		"user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
+		cfg.Postgres.User,
+		cfg.Postgres.Password,
+		cfg.Postgres.Database,
+		cfg.Postgres.Host,
+		cfg.Postgres.Port,
+	)
+
+	db, err := sqlx.Connect("postgres", conStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database connection: %w", err)
+	}
+
+	return &Repository{connection: db}, err
+}
+
+func (r *Repository) Close() {
+	_ = r.connection.Close()
 }
 
 func (r *Repository) AddOS(ctx context.Context, name, uuid string) (int64, error) {
-	query := "INSERT INTO os(name, create_at, is_moderate, user_uuid) VALUES ($1, $2, $3, $4) RETURNING id"
-	createTime := time.Now().UTC()
+	query := `INSERT INTO os(name, is_moderate, user_uuid) VALUES ($1, $2, $3) RETURNING id`
 
 	var id int64
 
-	err := r.connection.QueryRowContext(ctx, query, name, createTime, true, uuid).Scan(&id)
+	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("cannot execute query, error: %v", err)
 	}
@@ -75,9 +75,9 @@ func (r *Repository) AddOS(ctx context.Context, name, uuid string) (int64, error
 func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 	var os string
 
-	query := "SELECT name from os where id = $1"
+	query := `SELECT name FROM os WHERE id = $1`
 
-	err := r.connection.QueryRowContext(ctx, query, id).Scan(&os)
+	err := r.connection.QueryRowxContext(ctx, query, id).Scan(&os)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
@@ -89,36 +89,43 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 	return os, nil
 }
 
-// GetOsBySearchName Возвращать то что начинается с name или все совпадения?
-func (r *Repository) GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error) {
-	var res []model.OS
+func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (model.OSList, error) {
+	var res model.OSList
 
 	searchString := "%" + name + "%"
 
-	query := "SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10"
+	query := `SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10`
 
-	rows, err := r.connection.QueryContext(ctx, query, searchString)
-
+	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("cannot configure query, error: %v", err)
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var os model.OS
-		err := rows.Scan(&os.ID, &os.Name)
-
-		if err != nil {
-			return nil, fmt.Errorf("cannot execute query, error: %v", err)
-		}
-
-		res = append(res, os)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error during rows iteration: %v", err)
+		return nil, fmt.Errorf("cannot execute query, error: %v", err)
 	}
 
 	return res, nil
+}
+
+func (r *Repository) getOsPreview(ctx context.Context) (model.OSList, error) {
+	var res model.OSList
+
+	query := `SELECT id, name FROM os LIMIT 10`
+
+	err := r.connection.SelectContext(ctx, &res, query)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute query, error: %v", err)
+	}
+
+	return res, nil
+}
+
+func (r *Repository) GetAllOs() (model.OSList, error) {
+	var OSList model.OSList
+
+	query := `SELECT id, name FROM os`
+
+	err := r.connection.Select(&OSList, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch OS data from db: %w", err)
+	}
+
+	return OSList, nil
 }

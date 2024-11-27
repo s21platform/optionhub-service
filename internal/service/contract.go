@@ -9,5 +9,6 @@ import (
 type DBRepo interface {
 	AddOS(ctx context.Context, name, uuid string) (int64, error)
 	GetOsByID(ctx context.Context, id int64) (string, error)
-	GetOsBySearchName(ctx context.Context, name string) ([]model.OS, error)
+	GetOsBySearchName(ctx context.Context, name string) (model.OSList, error)
+	GetAllOs() (model.OSList, error)
 }

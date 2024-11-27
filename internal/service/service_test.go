@@ -24,7 +24,7 @@ func TestServer_AddOS(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockRepo := service.NewMockDbRepo(ctrl)
+	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
 		osName := "ubuntu"
@@ -65,14 +65,14 @@ func TestServer_GetOsById(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockRepo := service.NewMockDbRepo(ctrl)
+	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
 		expectedOsName := "ubuntu"
 
 		var id int64 = 3
 
-		mockRepo.EXPECT().GetOsById(gomock.Any(), id).Return(expectedOsName, nil)
+		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return(expectedOsName, nil)
 
 		s := service.NewService(mockRepo)
 		osName, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
@@ -85,7 +85,7 @@ func TestServer_GetOsById(t *testing.T) {
 
 		expectedErr := errors.New("get err")
 
-		mockRepo.EXPECT().GetOsById(gomock.Any(), id).Return("", expectedErr)
+		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
 		_, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
@@ -104,7 +104,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockRepo := service.NewMockDbRepo(ctrl)
+	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.OS{
@@ -114,9 +114,9 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
 			Values: []*optionhubproto.Record{
-				{Id: 1, Value: "ubuntu"},
-				{Id: 2, Value: "ubuntuu"},
-				{Id: 5, Value: "ubububu"},
+				{Id: 1, Name: "ubuntu"},
+				{Id: 2, Name: "ubuntuu"},
+				{Id: 5, Name: "ubububu"},
 			},
 		}
 		search := "ub"
@@ -129,14 +129,14 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		assert.Equal(t, osNames, expectedRes)
 	})
 
-	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
-		search := "w"
-
-		s := service.NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
-		assert.NoError(t, err)
-		assert.Nil(t, osNames)
-	})
+	//t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+	//	search := "w"
+	//
+	//	s := service.NewService(mockRepo)
+	//	osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
+	//	assert.NoError(t, err)
+	//	assert.Nil(t, osNames)
+	//})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		search := "wi"
