@@ -9,19 +9,19 @@ type CategoryItem struct {
 
 type CategoryItemList []CategoryItem
 
-func (o CategoryItemList) FromDTO() []*optionhub.Record {
-	result := make([]*optionhub.Record, 0, len(o))
+func (c CategoryItemList) FromDTO() []*optionhub.Record {
+	result := make([]*optionhub.Record, 0, len(c))
 
-	for _, avatar := range o {
+	for _, avatar := range c {
 		result = append(result, avatar.ToProto())
 	}
 
 	return result
 }
 
-func (os *CategoryItem) ToProto() *optionhub.Record {
+func (c *CategoryItem) ToProto() *optionhub.Record {
 	return &optionhub.Record{
-		Id:   os.ID,
-		Name: os.Name,
+		Id:   c.ID,
+		Name: c.Name,
 	}
 }
