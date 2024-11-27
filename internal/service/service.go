@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/model"
 
@@ -70,7 +69,7 @@ func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.EmptyOptionhu
 
 	OSList, err := s.dbR.GetAllOs()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all os list: %w", err)
+		return nil, status.Errorf(codes.NotFound, "failed to get all os list: %v", err)
 	}
 
 	return &optionhubproto.GetAllOut{
