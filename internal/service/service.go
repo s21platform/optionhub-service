@@ -99,7 +99,7 @@ func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubpro
 	}, nil
 }
 
-func (s *Service) GetWorkPlaceById(ctx context.Context, in *optionhubproto.GetByIdIn) (
+func (s *Service) GetWorkPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
 	*optionhubproto.GetByIdOut, error) {
 	workplace, err := s.dbR.GetWorkPlaceByID(ctx, in.Id)
 	if err != nil {
@@ -145,7 +145,7 @@ func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubpr
 	}, nil
 }
 
-func (s *Service) GetStudyPlaceById(ctx context.Context, in *optionhubproto.GetByIdIn) (
+func (s *Service) GetStudyPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
 	*optionhubproto.GetByIdOut, error) {
 	studyPlace, err := s.dbR.GetStudyPlaceByID(ctx, in.Id)
 	if err != nil {
@@ -191,7 +191,7 @@ func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.G
 	}, nil
 }
 
-func (s *Service) GetHobbyById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetHobbyByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
 	hobby, err := s.dbR.GetHobbyByID(ctx, in.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "failed to get hobby by id: %v", err)
@@ -236,7 +236,7 @@ func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.G
 	}, nil
 }
 
-func (s *Service) GetSkillById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetSkillByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
 	skill, err := s.dbR.GetSkillByID(ctx, in.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "failed to get skill by id: %v", err)
@@ -281,7 +281,7 @@ func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.Ge
 	}, nil
 }
 
-func (s *Service) GetCityById(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetCityByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
 	city, err := s.dbR.GetCityByID(ctx, in.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "failed to get city by id: %v", err)
@@ -299,6 +299,52 @@ func (s *Service) AddCity(ctx context.Context, in *optionhubproto.AddIn) (*optio
 	id, err := s.dbR.AddCity(ctx, in.Value, uuid)
 	if err != nil {
 		return nil, status.Errorf(codes.Aborted, "failed to add new city: %v", err)
+	}
+
+	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
+}
+
+func (s *Service) GetSocietyDirectionBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
+	*optionhubproto.GetByNameOut, error) {
+	var (
+		societyDirectionList model.CategoryItemList
+		err                  error
+	)
+
+	if len(in.Name) < 2 {
+		societyDirectionList, err = s.dbR.GetSocietyDirectionPreview(ctx)
+	} else {
+		societyDirectionList, err = s.dbR.GetSocietyDirectionBySearchName(ctx, in.Name)
+	}
+
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "failed to get society direction list: %v", err)
+	}
+
+	return &optionhubproto.GetByNameOut{
+		Options: societyDirectionList.FromDTO(),
+	}, nil
+}
+
+func (s *Service) GetSocietyDirectionByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
+	*optionhubproto.GetByIdOut, error) {
+	societyDirection, err := s.dbR.GetSocietyDirectionByID(ctx, in.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "failed to get society direction by id: %v", err)
+	}
+
+	return &optionhubproto.GetByIdOut{Id: in.Id, Value: societyDirection}, nil
+}
+
+func (s *Service) AddSocietyDirection(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	uuid, ok := ctx.Value(config.KeyUUID).(string)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
+	}
+
+	id, err := s.dbR.AddSocietyDirection(ctx, in.Value, uuid)
+	if err != nil {
+		return nil, status.Errorf(codes.Aborted, "failed to add new society direction: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil

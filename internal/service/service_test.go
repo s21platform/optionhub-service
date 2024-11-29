@@ -79,7 +79,7 @@ func TestServer_AddOS(t *testing.T) {
 	})
 }
 
-func TestServer_GetOsById(t *testing.T) {
+func TestServer_GetOsByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -304,7 +304,7 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 	})
 }
 
-func TestServer_GetWorkPlaceById(t *testing.T) {
+func TestServer_GetWorkPlaceByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -321,7 +321,7 @@ func TestServer_GetWorkPlaceById(t *testing.T) {
 		mockRepo.EXPECT().GetWorkPlaceByID(gomock.Any(), id).Return(expectedWorkPlaceName, nil)
 
 		s := service.NewService(mockRepo)
-		workPlaceName, err := s.GetWorkPlaceById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		workPlaceName, err := s.GetWorkPlaceByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, workPlaceName, &optionhubproto.GetByIdOut{Id: id, Value: expectedWorkPlaceName})
 	})
@@ -334,7 +334,7 @@ func TestServer_GetWorkPlaceById(t *testing.T) {
 		mockRepo.EXPECT().GetWorkPlaceByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetWorkPlaceById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		_, err := s.GetWorkPlaceByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -477,7 +477,7 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 	})
 }
 
-func TestServer_GetStudyPlaceById(t *testing.T) {
+func TestServer_GetStudyPlaceByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -494,7 +494,7 @@ func TestServer_GetStudyPlaceById(t *testing.T) {
 		mockRepo.EXPECT().GetStudyPlaceByID(gomock.Any(), id).Return(expectedStudyPlaceName, nil)
 
 		s := service.NewService(mockRepo)
-		studyPlaceName, err := s.GetStudyPlaceById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		studyPlaceName, err := s.GetStudyPlaceByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, studyPlaceName, &optionhubproto.GetByIdOut{Id: id, Value: expectedStudyPlaceName})
 	})
@@ -507,7 +507,7 @@ func TestServer_GetStudyPlaceById(t *testing.T) {
 		mockRepo.EXPECT().GetStudyPlaceByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetStudyPlaceById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		_, err := s.GetStudyPlaceByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -650,7 +650,7 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 	})
 }
 
-func TestServer_GetHobbyById(t *testing.T) {
+func TestServer_GetHobbyByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -667,7 +667,7 @@ func TestServer_GetHobbyById(t *testing.T) {
 		mockRepo.EXPECT().GetHobbyByID(gomock.Any(), id).Return(expectedHobbyName, nil)
 
 		s := service.NewService(mockRepo)
-		hobbyName, err := s.GetHobbyById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		hobbyName, err := s.GetHobbyByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, hobbyName, &optionhubproto.GetByIdOut{Id: id, Value: expectedHobbyName})
 	})
@@ -680,7 +680,7 @@ func TestServer_GetHobbyById(t *testing.T) {
 		mockRepo.EXPECT().GetHobbyByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetHobbyById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		_, err := s.GetHobbyByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -823,7 +823,7 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 	})
 }
 
-func TestServer_GetSkillById(t *testing.T) {
+func TestServer_GetSkillByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -840,7 +840,7 @@ func TestServer_GetSkillById(t *testing.T) {
 		mockRepo.EXPECT().GetSkillByID(gomock.Any(), id).Return(expectedSkillName, nil)
 
 		s := service.NewService(mockRepo)
-		skillName, err := s.GetSkillById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		skillName, err := s.GetSkillByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, skillName, &optionhubproto.GetByIdOut{Id: id, Value: expectedSkillName})
 	})
@@ -853,7 +853,7 @@ func TestServer_GetSkillById(t *testing.T) {
 		mockRepo.EXPECT().GetSkillByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetSkillById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		_, err := s.GetSkillByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -996,7 +996,7 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 	})
 }
 
-func TestServer_GetCityById(t *testing.T) {
+func TestServer_GetCityByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -1013,7 +1013,7 @@ func TestServer_GetCityById(t *testing.T) {
 		mockRepo.EXPECT().GetCityByID(gomock.Any(), id).Return(expectedCityName, nil)
 
 		s := service.NewService(mockRepo)
-		cityName, err := s.GetCityById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		cityName, err := s.GetCityByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, cityName, &optionhubproto.GetByIdOut{Id: id, Value: expectedCityName})
 	})
@@ -1026,7 +1026,7 @@ func TestServer_GetCityById(t *testing.T) {
 		mockRepo.EXPECT().GetCityByID(gomock.Any(), id).Return("", expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.GetCityById(ctx, &optionhubproto.GetByIdIn{Id: id})
+		_, err := s.GetCityByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1091,6 +1091,179 @@ func TestServer_AddCity(t *testing.T) {
 
 		s := service.NewService(mockRepo)
 		_, err := s.AddCity(ctx, &optionhubproto.AddIn{Value: cityName})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Aborted, st.Code())
+		assert.Contains(t, st.Message(), "insert err")
+	})
+}
+
+func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := service.NewMockDBRepo(ctrl)
+
+	t.Run("get_by_name_ok", func(t *testing.T) {
+		expectedNames := []model.CategoryItem{
+			{ID: 1, Label: "Cybersecurity"},
+			{ID: 2, Label: "E-Government"},
+			{ID: 5, Label: "EdTech"},
+		}
+		expectedRes := &optionhubproto.GetByNameOut{
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "Cybersecurity"},
+				{Id: 2, Label: "E-Government"},
+				{Id: 5, Label: "EdTech"},
+			},
+		}
+		search := "Cy"
+
+		mockRepo.EXPECT().GetSocietyDirectionBySearchName(gomock.Any(), search).Return(expectedNames, nil)
+
+		s := service.NewService(mockRepo)
+		societyDirectionNames, err := s.GetSocietyDirectionBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
+		assert.NoError(t, err)
+		assert.Equal(t, societyDirectionNames, expectedRes)
+	})
+
+	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		search := "A"
+
+		expectedPreview := []model.CategoryItem{
+			{ID: 1, Label: "AI"},
+			{ID: 2, Label: "Blockchain"},
+		}
+		expectedRes := &optionhubproto.GetByNameOut{
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "AI"},
+				{Id: 2, Label: "Blockchain"},
+			},
+		}
+
+		mockRepo.EXPECT().GetSocietyDirectionPreview(gomock.Any()).Return(expectedPreview, nil)
+
+		s := service.NewService(mockRepo)
+		societyDirectionNames, err := s.GetSocietyDirectionBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
+		assert.NoError(t, err)
+		assert.Equal(t, societyDirectionNames, expectedRes)
+	})
+
+	t.Run("get_by_name_err", func(t *testing.T) {
+		search := "ta"
+		expectedErr := errors.New("db err")
+
+		mockRepo.EXPECT().GetSocietyDirectionBySearchName(gomock.Any(), search).Return(nil, expectedErr)
+
+		s := service.NewService(mockRepo)
+		_, err := s.GetSocietyDirectionBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.NotFound, st.Code())
+		assert.Contains(t, st.Message(), "db err")
+	})
+}
+
+func TestServer_GetSocietyDirectionByID(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := service.NewMockDBRepo(ctrl)
+
+	t.Run("get_by_id_ok", func(t *testing.T) {
+		expectedSocietyDirectionName := "Sustainability"
+
+		var id int64 = 3
+
+		mockRepo.EXPECT().GetSocietyDirectionByID(gomock.Any(), id).Return(expectedSocietyDirectionName, nil)
+
+		s := service.NewService(mockRepo)
+		societyDirectionName, err := s.GetSocietyDirectionByID(ctx, &optionhubproto.GetByIdIn{Id: id})
+		assert.NoError(t, err)
+		assert.Equal(t, societyDirectionName, &optionhubproto.GetByIdOut{Id: id, Value: expectedSocietyDirectionName})
+	})
+
+	t.Run("get_by_id_err", func(t *testing.T) {
+		var id int64 = 4
+
+		expectedErr := errors.New("get err")
+
+		mockRepo.EXPECT().GetSocietyDirectionByID(gomock.Any(), id).Return("", expectedErr)
+
+		s := service.NewService(mockRepo)
+		_, err := s.GetSocietyDirectionByID(ctx, &optionhubproto.GetByIdIn{Id: id})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.NotFound, st.Code())
+		assert.Contains(t, st.Message(), "get err")
+	})
+}
+
+func TestServer_AddSocietyDirection(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	uuid := "test-uuid"
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockRepo := service.NewMockDBRepo(ctrl)
+
+	t.Run("add_ok", func(t *testing.T) {
+		societyDirectionName := "Privacy"
+
+		var expectedID int64 = 1
+
+		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, uuid).Return(expectedID, nil)
+
+		s := service.NewService(mockRepo)
+		id, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: societyDirectionName})
+		assert.NoError(t, err)
+		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: societyDirectionName})
+	})
+
+	t.Run("add_no_uuid", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+
+		SocietyDirectionName := "Privacy"
+
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		mockRepo := service.NewMockDBRepo(ctrl)
+
+		s := service.NewService(mockRepo)
+
+		_, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: SocietyDirectionName})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Unauthenticated, st.Code())
+		assert.Contains(t, st.Message(), "failed to find uuid")
+	})
+
+	t.Run("add_err", func(t *testing.T) {
+		societyDirectionName := "Privacy"
+
+		var expectedID int64
+
+		expectedErr := errors.New("insert err")
+
+		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, uuid).Return(expectedID, expectedErr)
+
+		s := service.NewService(mockRepo)
+		_, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: societyDirectionName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)

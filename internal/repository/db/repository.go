@@ -94,7 +94,7 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (model.
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM os WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM os WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -135,7 +135,7 @@ func (r *Repository) GetWorkPlaceBySearchName(ctx context.Context, name string) 
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM workplace WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM workplace WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -193,7 +193,7 @@ func (r *Repository) GetStudyPlaceBySearchName(ctx context.Context, name string)
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM study_place WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM study_place WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -251,7 +251,7 @@ func (r *Repository) GetHobbyBySearchName(ctx context.Context, name string) (mod
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM hobby WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM hobby WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -309,7 +309,7 @@ func (r *Repository) GetSkillBySearchName(ctx context.Context, name string) (mod
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM skill WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM skill WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -367,7 +367,7 @@ func (r *Repository) GetCityBySearchName(ctx context.Context, name string) (mode
 
 	searchString := "%" + name + "%"
 
-	query := `SELECT id, name FROM city WHERE name LIKE $1 LIMIT 10`
+	query := `SELECT id, name FROM city WHERE name ILIKE $1 LIMIT 10`
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
@@ -415,6 +415,64 @@ func (r *Repository) AddCity(ctx context.Context, name, uuid string) (int64, err
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("failed to add city into db: %v", err)
+	}
+
+	return id, nil
+}
+
+func (r *Repository) GetSocietyDirectionBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	var res model.CategoryItemList
+
+	searchString := "%" + name + "%"
+
+	query := `SELECT id, name FROM society_direction WHERE name ILIKE $1 LIMIT 10`
+
+	err := r.connection.SelectContext(ctx, &res, query, searchString)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get society direction by search name from db: %v", err)
+	}
+
+	return res, nil
+}
+
+func (r *Repository) GetSocietyDirectionPreview(ctx context.Context) (model.CategoryItemList, error) {
+	var res model.CategoryItemList
+
+	query := `SELECT id, name FROM society_direction LIMIT 10`
+
+	err := r.connection.SelectContext(ctx, &res, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get society direction preview from db: %v", err)
+	}
+
+	return res, nil
+}
+
+func (r *Repository) GetSocietyDirectionByID(ctx context.Context, id int64) (string, error) {
+	var societyDirection string
+
+	query := `SELECT name FROM society_direction WHERE id = $1`
+
+	err := r.connection.QueryRowxContext(ctx, query, id).Scan(&societyDirection)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", nil
+		}
+
+		return "", fmt.Errorf("failed to get society direction by id from db: %v", err)
+	}
+
+	return societyDirection, nil
+}
+
+func (r *Repository) AddSocietyDirection(ctx context.Context, name, uuid string) (int64, error) {
+	query := `INSERT INTO society_direction(name, is_moderate, user_uuid) VALUES ($1, $2, $3) RETURNING id`
+
+	var id int64
+
+	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to add society direction into db: %v", err)
 	}
 
 	return id, nil

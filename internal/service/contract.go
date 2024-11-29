@@ -37,4 +37,9 @@ type DBRepo interface {
 	GetCityPreview(ctx context.Context) (model.CategoryItemList, error)
 	GetCityByID(ctx context.Context, id int64) (string, error)
 	AddCity(ctx context.Context, name, uuid string) (int64, error)
+
+	GetSocietyDirectionBySearchName(ctx context.Context, name string) (model.CategoryItemList, error)
+	GetSocietyDirectionPreview(ctx context.Context) (model.CategoryItemList, error)
+	GetSocietyDirectionByID(ctx context.Context, id int64) (string, error)
+	AddSocietyDirection(ctx context.Context, name, uuid string) (int64, error)
 }

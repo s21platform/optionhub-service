@@ -95,6 +95,21 @@ func (mr *MockDBRepoMockRecorder) AddSkill(ctx, name, uuid interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSkill", reflect.TypeOf((*MockDBRepo)(nil).AddSkill), ctx, name, uuid)
 }
 
+// AddSocietyDirection mocks base method.
+func (m *MockDBRepo) AddSocietyDirection(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSocietyDirection", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSocietyDirection indicates an expected call of AddSocietyDirection.
+func (mr *MockDBRepoMockRecorder) AddSocietyDirection(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSocietyDirection", reflect.TypeOf((*MockDBRepo)(nil).AddSocietyDirection), ctx, name, uuid)
+}
+
 // AddStudyPlace mocks base method.
 func (m *MockDBRepo) AddStudyPlace(ctx context.Context, name, uuid string) (int64, error) {
 	m.ctrl.T.Helper()
@@ -318,6 +333,51 @@ func (m *MockDBRepo) GetSkillPreview(ctx context.Context) (model.CategoryItemLis
 func (mr *MockDBRepoMockRecorder) GetSkillPreview(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillPreview", reflect.TypeOf((*MockDBRepo)(nil).GetSkillPreview), ctx)
+}
+
+// GetSocietyDirectionByID mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionByID indicates an expected call of GetSocietyDirectionByID.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionByID", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionByID), ctx, id)
+}
+
+// GetSocietyDirectionBySearchName mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionBySearchName indicates an expected call of GetSocietyDirectionBySearchName.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionBySearchName), ctx, name)
+}
+
+// GetSocietyDirectionPreview mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionPreview indicates an expected call of GetSocietyDirectionPreview.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionPreview", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionPreview), ctx)
 }
 
 // GetStudyPlaceByID mocks base method.
