@@ -60,7 +60,7 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: osList.FromDTO(),
+		Options: osList.FromDTO(),
 	}, nil
 }
 
@@ -95,7 +95,7 @@ func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubpro
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: workPlaceList.FromDTO(),
+		Options: workPlaceList.FromDTO(),
 	}, nil
 }
 
@@ -141,7 +141,7 @@ func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubpr
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: studyPlaceList.FromDTO(),
+		Options: studyPlaceList.FromDTO(),
 	}, nil
 }
 
@@ -187,7 +187,7 @@ func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.G
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: hobbyList.FromDTO(),
+		Options: hobbyList.FromDTO(),
 	}, nil
 }
 
@@ -232,7 +232,7 @@ func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.G
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: skillList.FromDTO(),
+		Options: skillList.FromDTO(),
 	}, nil
 }
 
@@ -277,7 +277,7 @@ func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.Ge
 	}
 
 	return &optionhubproto.GetByNameOut{
-		Values: cityList.FromDTO(),
+		Options: cityList.FromDTO(),
 	}, nil
 }
 

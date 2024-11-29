@@ -3,8 +3,8 @@ package model
 import optionhub "github.com/s21platform/optionhub-proto/optionhub-proto"
 
 type CategoryItem struct {
-	ID   int64  `db:"id"`
-	Name string `db:"name"`
+	ID    int64  `db:"id"`
+	Label string `db:"name"`
 }
 
 type CategoryItemList []CategoryItem
@@ -21,7 +21,7 @@ func (c CategoryItemList) FromDTO() []*optionhub.Record {
 
 func (c *CategoryItem) ToProto() *optionhub.Record {
 	return &optionhub.Record{
-		Id:   c.ID,
-		Name: c.Name,
+		Id:    c.ID,
+		Label: c.Label,
 	}
 }

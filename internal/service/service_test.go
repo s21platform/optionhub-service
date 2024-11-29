@@ -129,15 +129,15 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "ubuntu"},
-			{ID: 2, Name: "ubuntuu"},
-			{ID: 5, Name: "ubububu"},
+			{ID: 1, Label: "ubuntu"},
+			{ID: 2, Label: "ubuntuu"},
+			{ID: 5, Label: "ubububu"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "ubuntu"},
-				{Id: 2, Name: "ubuntuu"},
-				{Id: 5, Name: "ubububu"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "ubuntu"},
+				{Id: 2, Label: "ubuntuu"},
+				{Id: 5, Label: "ubububu"},
 			},
 		}
 		search := "ub"
@@ -154,13 +154,13 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 		search := "w"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "windows"},
-			{ID: 2, Name: "wsl"},
+			{ID: 1, Label: "windows"},
+			{ID: 2, Label: "wsl"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "windows"},
-				{Id: 2, Name: "wsl"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "windows"},
+				{Id: 2, Label: "wsl"},
 			},
 		}
 
@@ -199,15 +199,15 @@ func TestServer_GetAllOs(t *testing.T) {
 
 	t.Run("get_all_os_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "ubuntu"},
-			{ID: 2, Name: "Mac OS"},
-			{ID: 5, Name: "Windows"},
+			{ID: 1, Label: "ubuntu"},
+			{ID: 2, Label: "Mac OS"},
+			{ID: 5, Label: "Windows"},
 		}
 		expectedRes := &optionhubproto.GetAllOut{
 			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "ubuntu"},
-				{Id: 2, Name: "Mac OS"},
-				{Id: 5, Name: "Windows"},
+				{Id: 1, Label: "ubuntu"},
+				{Id: 2, Label: "Mac OS"},
+				{Id: 5, Label: "Windows"},
 			},
 		}
 
@@ -245,15 +245,15 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "avito"},
-			{ID: 2, Name: "avitoo"},
-			{ID: 5, Name: "avivito"},
+			{ID: 1, Label: "avito"},
+			{ID: 2, Label: "avitoo"},
+			{ID: 5, Label: "avivito"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "avito"},
-				{Id: 2, Name: "avitoo"},
-				{Id: 5, Name: "avivito"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "avito"},
+				{Id: 2, Label: "avitoo"},
+				{Id: 5, Label: "avivito"},
 			},
 		}
 		search := "av"
@@ -270,13 +270,13 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 		search := "w"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "wildberries"},
-			{ID: 2, Name: "ozon"},
+			{ID: 1, Label: "wildberries"},
+			{ID: 2, Label: "ozon"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "wildberries"},
-				{Id: 2, Name: "ozon"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "wildberries"},
+				{Id: 2, Label: "ozon"},
 			},
 		}
 
@@ -418,15 +418,15 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "FU"},
-			{ID: 2, Name: "HSE"},
-			{ID: 5, Name: "MGIMO"},
+			{ID: 1, Label: "FU"},
+			{ID: 2, Label: "HSE"},
+			{ID: 5, Label: "MGIMO"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "FU"},
-				{Id: 2, Name: "HSE"},
-				{Id: 5, Name: "MGIMO"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "FU"},
+				{Id: 2, Label: "HSE"},
+				{Id: 5, Label: "MGIMO"},
 			},
 		}
 		search := "HS"
@@ -443,13 +443,13 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 		search := "m"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "mirea"},
-			{ID: 2, Name: "mgimo"},
+			{ID: 1, Label: "mirea"},
+			{ID: 2, Label: "mgimo"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "mirea"},
-				{Id: 2, Name: "mgimo"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "mirea"},
+				{Id: 2, Label: "mgimo"},
 			},
 		}
 
@@ -591,15 +591,15 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "driving"},
-			{ID: 2, Name: "painting"},
-			{ID: 5, Name: "swimming"},
+			{ID: 1, Label: "driving"},
+			{ID: 2, Label: "painting"},
+			{ID: 5, Label: "swimming"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "driving"},
-				{Id: 2, Name: "painting"},
-				{Id: 5, Name: "swimming"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "driving"},
+				{Id: 2, Label: "painting"},
+				{Id: 5, Label: "swimming"},
 			},
 		}
 		search := "pa"
@@ -616,13 +616,13 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 		search := "t"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "coding"},
-			{ID: 2, Name: "testing"},
+			{ID: 1, Label: "coding"},
+			{ID: 2, Label: "testing"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "coding"},
-				{Id: 2, Name: "testing"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "coding"},
+				{Id: 2, Label: "testing"},
 			},
 		}
 
@@ -764,15 +764,15 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "kafka"},
-			{ID: 2, Name: "s3"},
-			{ID: 5, Name: "swift"},
+			{ID: 1, Label: "kafka"},
+			{ID: 2, Label: "s3"},
+			{ID: 5, Label: "swift"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "kafka"},
-				{Id: 2, Name: "s3"},
-				{Id: 5, Name: "swift"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "kafka"},
+				{Id: 2, Label: "s3"},
+				{Id: 5, Label: "swift"},
 			},
 		}
 		search := "sw"
@@ -789,13 +789,13 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 		search := "q"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "sql"},
-			{ID: 2, Name: "python"},
+			{ID: 1, Label: "sql"},
+			{ID: 2, Label: "python"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "sql"},
-				{Id: 2, Name: "python"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "sql"},
+				{Id: 2, Label: "python"},
 			},
 		}
 
@@ -937,15 +937,15 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		expectedNames := []model.CategoryItem{
-			{ID: 1, Name: "Moscow"},
-			{ID: 2, Name: "New York"},
-			{ID: 5, Name: "St. Petersburg"},
+			{ID: 1, Label: "Moscow"},
+			{ID: 2, Label: "New York"},
+			{ID: 5, Label: "St. Petersburg"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "Moscow"},
-				{Id: 2, Name: "New York"},
-				{Id: 5, Name: "St. Petersburg"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "Moscow"},
+				{Id: 2, Label: "New York"},
+				{Id: 5, Label: "St. Petersburg"},
 			},
 		}
 		search := "Mo"
@@ -962,13 +962,13 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 		search := "v"
 
 		expectedPreview := []model.CategoryItem{
-			{ID: 1, Name: "Voronezh"},
-			{ID: 2, Name: "Vena"},
+			{ID: 1, Label: "Voronezh"},
+			{ID: 2, Label: "Vena"},
 		}
 		expectedRes := &optionhubproto.GetByNameOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Name: "Voronezh"},
-				{Id: 2, Name: "Vena"},
+			Options: []*optionhubproto.Record{
+				{Id: 1, Label: "Voronezh"},
+				{Id: 2, Label: "Vena"},
 			},
 		}
 
