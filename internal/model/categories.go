@@ -12,16 +12,12 @@ type CategoryItemList []CategoryItem
 func (c CategoryItemList) FromDTO() []*optionhub.Record {
 	result := make([]*optionhub.Record, 0, len(c))
 
-	for _, avatar := range c {
-		result = append(result, avatar.ToProto())
+	for _, item := range c {
+		result = append(result, &optionhub.Record{
+			Id:    item.ID,
+			Label: item.Label,
+		})
 	}
 
 	return result
-}
-
-func (c *CategoryItem) ToProto() *optionhub.Record {
-	return &optionhub.Record{
-		Id:    c.ID,
-		Label: c.Label,
-	}
 }
