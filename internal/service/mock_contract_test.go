@@ -35,6 +35,36 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
+// AddCity mocks base method.
+func (m *MockDBRepo) AddCity(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCity", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddCity indicates an expected call of AddCity.
+func (mr *MockDBRepoMockRecorder) AddCity(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCity", reflect.TypeOf((*MockDBRepo)(nil).AddCity), ctx, name, uuid)
+}
+
+// AddHobby mocks base method.
+func (m *MockDBRepo) AddHobby(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddHobby", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddHobby indicates an expected call of AddHobby.
+func (mr *MockDBRepoMockRecorder) AddHobby(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddHobby", reflect.TypeOf((*MockDBRepo)(nil).AddHobby), ctx, name, uuid)
+}
+
 // AddOS mocks base method.
 func (m *MockDBRepo) AddOS(ctx context.Context, name, uuid string) (int64, error) {
 	m.ctrl.T.Helper()
@@ -50,11 +80,71 @@ func (mr *MockDBRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDBRepo)(nil).AddOS), ctx, name, uuid)
 }
 
+// AddSkill mocks base method.
+func (m *MockDBRepo) AddSkill(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSkill", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSkill indicates an expected call of AddSkill.
+func (mr *MockDBRepoMockRecorder) AddSkill(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSkill", reflect.TypeOf((*MockDBRepo)(nil).AddSkill), ctx, name, uuid)
+}
+
+// AddSocietyDirection mocks base method.
+func (m *MockDBRepo) AddSocietyDirection(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSocietyDirection", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSocietyDirection indicates an expected call of AddSocietyDirection.
+func (mr *MockDBRepoMockRecorder) AddSocietyDirection(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSocietyDirection", reflect.TypeOf((*MockDBRepo)(nil).AddSocietyDirection), ctx, name, uuid)
+}
+
+// AddStudyPlace mocks base method.
+func (m *MockDBRepo) AddStudyPlace(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddStudyPlace", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddStudyPlace indicates an expected call of AddStudyPlace.
+func (mr *MockDBRepoMockRecorder) AddStudyPlace(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddStudyPlace", reflect.TypeOf((*MockDBRepo)(nil).AddStudyPlace), ctx, name, uuid)
+}
+
+// AddWorkPlace mocks base method.
+func (m *MockDBRepo) AddWorkPlace(ctx context.Context, name, uuid string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddWorkPlace", ctx, name, uuid)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddWorkPlace indicates an expected call of AddWorkPlace.
+func (mr *MockDBRepoMockRecorder) AddWorkPlace(ctx, name, uuid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddWorkPlace", reflect.TypeOf((*MockDBRepo)(nil).AddWorkPlace), ctx, name, uuid)
+}
+
 // GetAllOs mocks base method.
-func (m *MockDBRepo) GetAllOs() (model.OSList, error) {
+func (m *MockDBRepo) GetAllOs() (model.CategoryItemList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllOs")
-	ret0, _ := ret[0].(model.OSList)
+	ret0, _ := ret[0].(model.CategoryItemList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -63,6 +153,96 @@ func (m *MockDBRepo) GetAllOs() (model.OSList, error) {
 func (mr *MockDBRepoMockRecorder) GetAllOs() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllOs", reflect.TypeOf((*MockDBRepo)(nil).GetAllOs))
+}
+
+// GetCityByID mocks base method.
+func (m *MockDBRepo) GetCityByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCityByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCityByID indicates an expected call of GetCityByID.
+func (mr *MockDBRepoMockRecorder) GetCityByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCityByID", reflect.TypeOf((*MockDBRepo)(nil).GetCityByID), ctx, id)
+}
+
+// GetCityBySearchName mocks base method.
+func (m *MockDBRepo) GetCityBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCityBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCityBySearchName indicates an expected call of GetCityBySearchName.
+func (mr *MockDBRepoMockRecorder) GetCityBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCityBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetCityBySearchName), ctx, name)
+}
+
+// GetCityPreview mocks base method.
+func (m *MockDBRepo) GetCityPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCityPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCityPreview indicates an expected call of GetCityPreview.
+func (mr *MockDBRepoMockRecorder) GetCityPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCityPreview", reflect.TypeOf((*MockDBRepo)(nil).GetCityPreview), ctx)
+}
+
+// GetHobbyByID mocks base method.
+func (m *MockDBRepo) GetHobbyByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHobbyByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHobbyByID indicates an expected call of GetHobbyByID.
+func (mr *MockDBRepoMockRecorder) GetHobbyByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHobbyByID", reflect.TypeOf((*MockDBRepo)(nil).GetHobbyByID), ctx, id)
+}
+
+// GetHobbyBySearchName mocks base method.
+func (m *MockDBRepo) GetHobbyBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHobbyBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHobbyBySearchName indicates an expected call of GetHobbyBySearchName.
+func (mr *MockDBRepoMockRecorder) GetHobbyBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHobbyBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetHobbyBySearchName), ctx, name)
+}
+
+// GetHobbyPreview mocks base method.
+func (m *MockDBRepo) GetHobbyPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHobbyPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHobbyPreview indicates an expected call of GetHobbyPreview.
+func (mr *MockDBRepoMockRecorder) GetHobbyPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHobbyPreview", reflect.TypeOf((*MockDBRepo)(nil).GetHobbyPreview), ctx)
 }
 
 // GetOsByID mocks base method.
@@ -81,10 +261,10 @@ func (mr *MockDBRepoMockRecorder) GetOsByID(ctx, id interface{}) *gomock.Call {
 }
 
 // GetOsBySearchName mocks base method.
-func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (model.OSList, error) {
+func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
-	ret0, _ := ret[0].(model.OSList)
+	ret0, _ := ret[0].(model.CategoryItemList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -93,4 +273,199 @@ func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (model.
 func (mr *MockDBRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetOsBySearchName), ctx, name)
+}
+
+// GetOsPreview mocks base method.
+func (m *MockDBRepo) GetOsPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOsPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOsPreview indicates an expected call of GetOsPreview.
+func (mr *MockDBRepoMockRecorder) GetOsPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsPreview", reflect.TypeOf((*MockDBRepo)(nil).GetOsPreview), ctx)
+}
+
+// GetSkillByID mocks base method.
+func (m *MockDBRepo) GetSkillByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSkillByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSkillByID indicates an expected call of GetSkillByID.
+func (mr *MockDBRepoMockRecorder) GetSkillByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillByID", reflect.TypeOf((*MockDBRepo)(nil).GetSkillByID), ctx, id)
+}
+
+// GetSkillBySearchName mocks base method.
+func (m *MockDBRepo) GetSkillBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSkillBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSkillBySearchName indicates an expected call of GetSkillBySearchName.
+func (mr *MockDBRepoMockRecorder) GetSkillBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetSkillBySearchName), ctx, name)
+}
+
+// GetSkillPreview mocks base method.
+func (m *MockDBRepo) GetSkillPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSkillPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSkillPreview indicates an expected call of GetSkillPreview.
+func (mr *MockDBRepoMockRecorder) GetSkillPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSkillPreview", reflect.TypeOf((*MockDBRepo)(nil).GetSkillPreview), ctx)
+}
+
+// GetSocietyDirectionByID mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionByID indicates an expected call of GetSocietyDirectionByID.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionByID", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionByID), ctx, id)
+}
+
+// GetSocietyDirectionBySearchName mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionBySearchName indicates an expected call of GetSocietyDirectionBySearchName.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionBySearchName), ctx, name)
+}
+
+// GetSocietyDirectionPreview mocks base method.
+func (m *MockDBRepo) GetSocietyDirectionPreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSocietyDirectionPreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSocietyDirectionPreview indicates an expected call of GetSocietyDirectionPreview.
+func (mr *MockDBRepoMockRecorder) GetSocietyDirectionPreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSocietyDirectionPreview", reflect.TypeOf((*MockDBRepo)(nil).GetSocietyDirectionPreview), ctx)
+}
+
+// GetStudyPlaceByID mocks base method.
+func (m *MockDBRepo) GetStudyPlaceByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStudyPlaceByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStudyPlaceByID indicates an expected call of GetStudyPlaceByID.
+func (mr *MockDBRepoMockRecorder) GetStudyPlaceByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStudyPlaceByID", reflect.TypeOf((*MockDBRepo)(nil).GetStudyPlaceByID), ctx, id)
+}
+
+// GetStudyPlaceBySearchName mocks base method.
+func (m *MockDBRepo) GetStudyPlaceBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStudyPlaceBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStudyPlaceBySearchName indicates an expected call of GetStudyPlaceBySearchName.
+func (mr *MockDBRepoMockRecorder) GetStudyPlaceBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStudyPlaceBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetStudyPlaceBySearchName), ctx, name)
+}
+
+// GetStudyPlacePreview mocks base method.
+func (m *MockDBRepo) GetStudyPlacePreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStudyPlacePreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStudyPlacePreview indicates an expected call of GetStudyPlacePreview.
+func (mr *MockDBRepoMockRecorder) GetStudyPlacePreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStudyPlacePreview", reflect.TypeOf((*MockDBRepo)(nil).GetStudyPlacePreview), ctx)
+}
+
+// GetWorkPlaceByID mocks base method.
+func (m *MockDBRepo) GetWorkPlaceByID(ctx context.Context, id int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorkPlaceByID", ctx, id)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorkPlaceByID indicates an expected call of GetWorkPlaceByID.
+func (mr *MockDBRepoMockRecorder) GetWorkPlaceByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkPlaceByID", reflect.TypeOf((*MockDBRepo)(nil).GetWorkPlaceByID), ctx, id)
+}
+
+// GetWorkPlaceBySearchName mocks base method.
+func (m *MockDBRepo) GetWorkPlaceBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorkPlaceBySearchName", ctx, name)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorkPlaceBySearchName indicates an expected call of GetWorkPlaceBySearchName.
+func (mr *MockDBRepoMockRecorder) GetWorkPlaceBySearchName(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkPlaceBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetWorkPlaceBySearchName), ctx, name)
+}
+
+// GetWorkPlacePreview mocks base method.
+func (m *MockDBRepo) GetWorkPlacePreview(ctx context.Context) (model.CategoryItemList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWorkPlacePreview", ctx)
+	ret0, _ := ret[0].(model.CategoryItemList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWorkPlacePreview indicates an expected call of GetWorkPlacePreview.
+func (mr *MockDBRepoMockRecorder) GetWorkPlacePreview(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkPlacePreview", reflect.TypeOf((*MockDBRepo)(nil).GetWorkPlacePreview), ctx)
 }
