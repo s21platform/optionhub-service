@@ -22,7 +22,7 @@ func NewService(repo DBRepo) *Service {
 func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
 	os, err := s.dbR.GetOsByID(ctx, in.Id)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "cannot get os by id, err: %v", err)
+		return nil, status.Errorf(codes.NotFound, "failed to get os by id, err: %v", err)
 	}
 
 	return &optionhubproto.GetByIdOut{Id: in.Id, Value: os}, nil
@@ -31,12 +31,12 @@ func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
 func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "cannot find uuid")
+		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddOS(ctx, in.Value, uuid)
 	if err != nil {
-		return nil, status.Errorf(codes.Aborted, "cannot add new os, err: %v", err)
+		return nil, status.Errorf(codes.Aborted, "failed to add new os, err: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
@@ -56,7 +56,7 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}
 
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "cannot get os by name, err: %v", err)
+		return nil, status.Errorf(codes.NotFound, "failed to get os by name, err: %v", err)
 	}
 
 	return &optionhubproto.GetByNameOut{
