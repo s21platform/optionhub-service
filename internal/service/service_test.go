@@ -57,7 +57,7 @@ func TestServer_AddOS(t *testing.T) {
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Contains(t, st.Message(), "cannot find uuid")
+		assert.Contains(t, st.Message(), "failed to find uuid")
 	})
 
 	t.Run("add_err", func(t *testing.T) {
