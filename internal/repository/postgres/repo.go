@@ -1,4 +1,4 @@
-package db
+package postgres
 
 import (
 	"context"
@@ -6,10 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"optionhub-service/internal/model"
-	"time"
-
 	"optionhub-service/internal/config"
+	"optionhub-service/internal/model"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
@@ -19,40 +17,18 @@ type Repository struct {
 	connection *sqlx.DB
 }
 
-func New(cfg *config.Config) (*Repository, error) {
-	var err error
+func New(cfg *config.Config) *Repository {
+	conStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
+		cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Database, cfg.Postgres.Host, cfg.Postgres.Port)
 
-	var repo *Repository
-
-	for i := 0; i < 5; i++ {
-		repo, err = connect(cfg)
-		if err == nil {
-			break
-		}
-
-		log.Println("failed to connect to database: ", err)
-		time.Sleep(500 * time.Millisecond)
-	}
-
-	return repo, err
-}
-
-func connect(cfg *config.Config) (*Repository, error) {
-	conStr := fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
-		cfg.Postgres.User,
-		cfg.Postgres.Password,
-		cfg.Postgres.Database,
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
-	)
-
-	db, err := sqlx.Connect("postgres", conStr)
+	conn, err := sqlx.Connect("postgres", conStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database connection: %w", err)
+		log.Fatal("error connect: ", err)
 	}
 
-	return &Repository{connection: db}, err
+	return &Repository{
+		connection: conn,
+	}
 }
 
 func (r *Repository) Close() {
@@ -66,7 +42,7 @@ func (r *Repository) AddOS(ctx context.Context, name, uuid string) (int64, error
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add os into db: %v", err)
+		return 0, fmt.Errorf("failed to add os into postgres: %v", err)
 	}
 
 	return id, nil
@@ -83,7 +59,7 @@ func (r *Repository) GetOsByID(ctx context.Context, id int64) (string, error) {
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get os by id from db: %v", err)
+		return "", fmt.Errorf("failed to get os by id from postgres: %v", err)
 	}
 
 	return os, nil
@@ -98,7 +74,7 @@ func (r *Repository) GetOsBySearchName(ctx context.Context, name string) (model.
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get os by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get os by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -111,7 +87,7 @@ func (r *Repository) GetOsPreview(ctx context.Context) (model.CategoryItemList, 
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get os preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get os preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -124,7 +100,7 @@ func (r *Repository) GetAllOs() (model.CategoryItemList, error) {
 
 	err := r.connection.Select(&OSList, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch all CategoryItem from db: %w", err)
+		return nil, fmt.Errorf("failed to fetch all CategoryItem from postgres: %w", err)
 	}
 
 	return OSList, nil
@@ -139,7 +115,7 @@ func (r *Repository) GetWorkPlaceBySearchName(ctx context.Context, name string) 
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get workplace by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get workplace by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -152,7 +128,7 @@ func (r *Repository) GetWorkPlacePreview(ctx context.Context) (model.CategoryIte
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get workplace preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get workplace preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -169,7 +145,7 @@ func (r *Repository) GetWorkPlaceByID(ctx context.Context, id int64) (string, er
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get workplace by id from db: %v", err)
+		return "", fmt.Errorf("failed to get workplace by id from postgres: %v", err)
 	}
 
 	return workplace, nil
@@ -182,7 +158,7 @@ func (r *Repository) AddWorkPlace(ctx context.Context, name, uuid string) (int64
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add workplace into db: %v", err)
+		return 0, fmt.Errorf("failed to add workplace into postgres: %v", err)
 	}
 
 	return id, nil
@@ -197,7 +173,7 @@ func (r *Repository) GetStudyPlaceBySearchName(ctx context.Context, name string)
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get study place by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get study place by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -210,7 +186,7 @@ func (r *Repository) GetStudyPlacePreview(ctx context.Context) (model.CategoryIt
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get study place preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get study place preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -227,7 +203,7 @@ func (r *Repository) GetStudyPlaceByID(ctx context.Context, id int64) (string, e
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get study place by id from db: %v", err)
+		return "", fmt.Errorf("failed to get study place by id from postgres: %v", err)
 	}
 
 	return studyPlace, nil
@@ -240,7 +216,7 @@ func (r *Repository) AddStudyPlace(ctx context.Context, name, uuid string) (int6
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add study place into db: %v", err)
+		return 0, fmt.Errorf("failed to add study place into postgres: %v", err)
 	}
 
 	return id, nil
@@ -255,7 +231,7 @@ func (r *Repository) GetHobbyBySearchName(ctx context.Context, name string) (mod
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get hobby by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get hobby by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -268,7 +244,7 @@ func (r *Repository) GetHobbyPreview(ctx context.Context) (model.CategoryItemLis
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get hobby preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get hobby preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -285,7 +261,7 @@ func (r *Repository) GetHobbyByID(ctx context.Context, id int64) (string, error)
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get hobby by id from db: %v", err)
+		return "", fmt.Errorf("failed to get hobby by id from postgres: %v", err)
 	}
 
 	return hobby, nil
@@ -298,7 +274,7 @@ func (r *Repository) AddHobby(ctx context.Context, name, uuid string) (int64, er
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add hobby into db: %v", err)
+		return 0, fmt.Errorf("failed to add hobby into postgres: %v", err)
 	}
 
 	return id, nil
@@ -313,7 +289,7 @@ func (r *Repository) GetSkillBySearchName(ctx context.Context, name string) (mod
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get skill by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get skill by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -326,7 +302,7 @@ func (r *Repository) GetSkillPreview(ctx context.Context) (model.CategoryItemLis
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get skill preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get skill preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -343,7 +319,7 @@ func (r *Repository) GetSkillByID(ctx context.Context, id int64) (string, error)
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get skill by id from db: %v", err)
+		return "", fmt.Errorf("failed to get skill by id from postgres: %v", err)
 	}
 
 	return skill, nil
@@ -356,7 +332,7 @@ func (r *Repository) AddSkill(ctx context.Context, name, uuid string) (int64, er
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add skill into db: %v", err)
+		return 0, fmt.Errorf("failed to add skill into postgres: %v", err)
 	}
 
 	return id, nil
@@ -371,7 +347,7 @@ func (r *Repository) GetCityBySearchName(ctx context.Context, name string) (mode
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get city by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get city by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -384,7 +360,7 @@ func (r *Repository) GetCityPreview(ctx context.Context) (model.CategoryItemList
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get city preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get city preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -401,7 +377,7 @@ func (r *Repository) GetCityByID(ctx context.Context, id int64) (string, error) 
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get city by id from db: %v", err)
+		return "", fmt.Errorf("failed to get city by id from postgres: %v", err)
 	}
 
 	return city, nil
@@ -414,7 +390,7 @@ func (r *Repository) AddCity(ctx context.Context, name, uuid string) (int64, err
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add city into db: %v", err)
+		return 0, fmt.Errorf("failed to add city into postgres: %v", err)
 	}
 
 	return id, nil
@@ -429,7 +405,7 @@ func (r *Repository) GetSocietyDirectionBySearchName(ctx context.Context, name s
 
 	err := r.connection.SelectContext(ctx, &res, query, searchString)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get society direction by search name from db: %v", err)
+		return nil, fmt.Errorf("failed to get society direction by search name from postgres: %v", err)
 	}
 
 	return res, nil
@@ -442,7 +418,7 @@ func (r *Repository) GetSocietyDirectionPreview(ctx context.Context) (model.Cate
 
 	err := r.connection.SelectContext(ctx, &res, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get society direction preview from db: %v", err)
+		return nil, fmt.Errorf("failed to get society direction preview from postgres: %v", err)
 	}
 
 	return res, nil
@@ -459,7 +435,7 @@ func (r *Repository) GetSocietyDirectionByID(ctx context.Context, id int64) (str
 			return "", nil
 		}
 
-		return "", fmt.Errorf("failed to get society direction by id from db: %v", err)
+		return "", fmt.Errorf("failed to get society direction by id from postgres: %v", err)
 	}
 
 	return societyDirection, nil
@@ -472,7 +448,7 @@ func (r *Repository) AddSocietyDirection(ctx context.Context, name, uuid string)
 
 	err := r.connection.QueryRowxContext(ctx, query, name, true, uuid).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add society direction into db: %v", err)
+		return 0, fmt.Errorf("failed to add society direction into postgres: %v", err)
 	}
 
 	return id, nil
