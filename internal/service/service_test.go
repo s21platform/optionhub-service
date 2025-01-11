@@ -9,18 +9,29 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	logger_lib "github.com/s21platform/logger-lib"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+const (
+	LoggerHost        = "217.28.222.68"
+	LoggerPort        = "3100"
+	LoggerServiceName = "optionhub"
+	LoggerEnv         = "optionhub-test"
+)
+
 func TestServer_AddOS(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -43,6 +54,8 @@ func TestServer_AddOS(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		osName := "macOS"
 
@@ -83,6 +96,8 @@ func TestServer_GetOsByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -122,6 +137,8 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -192,6 +209,8 @@ func TestServer_GetAllOs(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -238,6 +257,8 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -308,6 +329,8 @@ func TestServer_GetWorkPlaceByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -347,8 +370,11 @@ func TestServer_AddWorkPlace(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -371,6 +397,8 @@ func TestServer_AddWorkPlace(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		workPlaceName := "wildberries"
 
@@ -411,6 +439,8 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -481,6 +511,8 @@ func TestServer_GetStudyPlaceByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -520,8 +552,11 @@ func TestServer_AddStudyPlace(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -544,6 +579,8 @@ func TestServer_AddStudyPlace(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		studyPlaceName := "rudn"
 
@@ -584,6 +621,8 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -654,6 +693,8 @@ func TestServer_GetHobbyByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -693,8 +734,11 @@ func TestServer_AddHobby(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -717,6 +761,8 @@ func TestServer_AddHobby(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		hobbyName := "boxing"
 
@@ -757,6 +803,8 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -827,6 +875,8 @@ func TestServer_GetSkillByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -866,8 +916,11 @@ func TestServer_AddSkill(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -890,6 +943,8 @@ func TestServer_AddSkill(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		skillName := "R"
 
@@ -930,6 +985,8 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1000,6 +1057,8 @@ func TestServer_GetCityByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1039,8 +1098,11 @@ func TestServer_AddCity(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1063,6 +1125,8 @@ func TestServer_AddCity(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		cityName := "Dublin"
 
@@ -1103,6 +1167,8 @@ func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1173,6 +1239,8 @@ func TestServer_GetSocietyDirectionByID(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1212,8 +1280,11 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+
 	uuid := "test-uuid"
+	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -1236,6 +1307,8 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
+		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
+		ctx = context.WithValue(ctx, config.KeyLogger, logger)
 
 		SocietyDirectionName := "Privacy"
 
