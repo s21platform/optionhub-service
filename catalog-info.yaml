@@ -17,4 +17,9 @@ spec:
   lifecycle: production
   owner: optionhub-service-team
   providesApis:
-    - optionhub-api
+    - GetOsBySearchName-v0
+    - GetOsByID-v0
+    - GetAllOs-v0
+    - AddOs-v0
+    - SetOsByID-v0
+    - DeleteOsByID-v0
