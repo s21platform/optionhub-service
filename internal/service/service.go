@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/model"
 
+	logger_lib "github.com/s21platform/logger-lib"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,8 +22,12 @@ func NewService(repo DBRepo) *Service {
 }
 
 func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetOsByID")
+
 	os, err := s.dbR.GetOsByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get os by id, err: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get os by id, err: %v", err)
 	}
 
@@ -29,21 +35,28 @@ func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
 }
 
 func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddOs")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddOS(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new os, err: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new os, err: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut,
-	error) {
+func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetOsBySearchName")
+
 	var (
 		osList model.CategoryItemList
 		err    error
@@ -56,6 +69,7 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get os by name, err: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get os by name, err: %v", err)
 	}
 
@@ -64,11 +78,13 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}, nil
 }
 
-func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.EmptyOptionhub) (*optionhubproto.GetAllOut, error) {
-	_, _ = ctx, in
+func (s *Service) GetAllOs(ctx context.Context, _ *optionhubproto.EmptyOptionhub) (*optionhubproto.GetAllOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetAllOs")
 
 	OSList, err := s.dbR.GetAllOs()
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get all os list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get all os list: %v", err)
 	}
 
@@ -77,8 +93,10 @@ func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.EmptyOptionhu
 	}, nil
 }
 
-func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetWorkPlaceBySearchName")
+
 	var (
 		workPlaceList model.CategoryItemList
 		err           error
@@ -91,6 +109,7 @@ func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubpro
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get workplace list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get workplace list: %v", err)
 	}
 
@@ -99,10 +118,13 @@ func (s *Service) GetWorkPlaceBySearchName(ctx context.Context, in *optionhubpro
 	}, nil
 }
 
-func (s *Service) GetWorkPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
-	*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetWorkPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetWorkPlaceByID")
+
 	workplace, err := s.dbR.GetWorkPlaceByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get workplace by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get workplace by id: %v", err)
 	}
 
@@ -110,21 +132,28 @@ func (s *Service) GetWorkPlaceByID(ctx context.Context, in *optionhubproto.GetBy
 }
 
 func (s *Service) AddWorkPlace(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddWorkPlace")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddWorkPlace(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new workplace: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new workplace: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetStudyPlaceBySearchName")
+
 	var (
 		studyPlaceList model.CategoryItemList
 		err            error
@@ -137,6 +166,7 @@ func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubpr
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get study place list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get study place list: %v", err)
 	}
 
@@ -145,10 +175,13 @@ func (s *Service) GetStudyPlaceBySearchName(ctx context.Context, in *optionhubpr
 	}, nil
 }
 
-func (s *Service) GetStudyPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
-	*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetStudyPlaceByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetStudyPlaceByID")
+
 	studyPlace, err := s.dbR.GetStudyPlaceByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get study place by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get study place by id: %v", err)
 	}
 
@@ -156,21 +189,28 @@ func (s *Service) GetStudyPlaceByID(ctx context.Context, in *optionhubproto.GetB
 }
 
 func (s *Service) AddStudyPlace(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddStudyPlace")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddStudyPlace(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new study place: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new study place: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetHobbyBySearchName")
+
 	var (
 		hobbyList model.CategoryItemList
 		err       error
@@ -183,6 +223,7 @@ func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.G
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get hobby list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get hobby list: %v", err)
 	}
 
@@ -192,8 +233,12 @@ func (s *Service) GetHobbyBySearchName(ctx context.Context, in *optionhubproto.G
 }
 
 func (s *Service) GetHobbyByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetHobbyByID")
+
 	hobby, err := s.dbR.GetHobbyByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get hobby by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get hobby by id: %v", err)
 	}
 
@@ -201,21 +246,28 @@ func (s *Service) GetHobbyByID(ctx context.Context, in *optionhubproto.GetByIdIn
 }
 
 func (s *Service) AddHobby(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddHobby")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddHobby(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new hobby: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new hobby: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetSkillBySearchName")
+
 	var (
 		skillList model.CategoryItemList
 		err       error
@@ -228,6 +280,7 @@ func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.G
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get skill list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get skill list: %v", err)
 	}
 
@@ -237,8 +290,12 @@ func (s *Service) GetSkillBySearchName(ctx context.Context, in *optionhubproto.G
 }
 
 func (s *Service) GetSkillByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetSkillByID")
+
 	skill, err := s.dbR.GetSkillByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get skill by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get skill by id: %v", err)
 	}
 
@@ -246,21 +303,28 @@ func (s *Service) GetSkillByID(ctx context.Context, in *optionhubproto.GetByIdIn
 }
 
 func (s *Service) AddSkill(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddSkill")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddSkill(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new skill: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new skill: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetCityBySearchName")
+
 	var (
 		cityList model.CategoryItemList
 		err      error
@@ -273,6 +337,7 @@ func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.Ge
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get city list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get city list: %v", err)
 	}
 
@@ -282,8 +347,12 @@ func (s *Service) GetCityBySearchName(ctx context.Context, in *optionhubproto.Ge
 }
 
 func (s *Service) GetCityByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetCityByID")
+
 	city, err := s.dbR.GetCityByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get city by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get city by id: %v", err)
 	}
 
@@ -291,21 +360,28 @@ func (s *Service) GetCityByID(ctx context.Context, in *optionhubproto.GetByIdIn)
 }
 
 func (s *Service) AddCity(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddCity")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddCity(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new city: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new city: %v", err)
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
 }
 
-func (s *Service) GetSocietyDirectionBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (
-	*optionhubproto.GetByNameOut, error) {
+func (s *Service) GetSocietyDirectionBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetSocietyDirectionBySearchName")
+
 	var (
 		societyDirectionList model.CategoryItemList
 		err                  error
@@ -318,6 +394,7 @@ func (s *Service) GetSocietyDirectionBySearchName(ctx context.Context, in *optio
 	}
 
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get society direction list: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get society direction list: %v", err)
 	}
 
@@ -326,10 +403,13 @@ func (s *Service) GetSocietyDirectionBySearchName(ctx context.Context, in *optio
 	}, nil
 }
 
-func (s *Service) GetSocietyDirectionByID(ctx context.Context, in *optionhubproto.GetByIdIn) (
-	*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetSocietyDirectionByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetSocietyDirectionByID")
+
 	societyDirection, err := s.dbR.GetSocietyDirectionByID(ctx, in.Id)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get society direction by id: %v", err))
 		return nil, status.Errorf(codes.NotFound, "failed to get society direction by id: %v", err)
 	}
 
@@ -337,13 +417,18 @@ func (s *Service) GetSocietyDirectionByID(ctx context.Context, in *optionhubprot
 }
 
 func (s *Service) AddSocietyDirection(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("AddSocietyDirection")
+
 	uuid, ok := ctx.Value(config.KeyUUID).(string)
 	if !ok {
+		logger.Error("failed to find uuid")
 		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
 	}
 
 	id, err := s.dbR.AddSocietyDirection(ctx, in.Value, uuid)
 	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new society direction: %v", err))
 		return nil, status.Errorf(codes.Aborted, "failed to add new society direction: %v", err)
 	}
 
