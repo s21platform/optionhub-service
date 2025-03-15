@@ -16,28 +16,23 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	LoggerHost        = "217.28.222.68"
-	LoggerPort        = "3100"
-	LoggerServiceName = "optionhub"
-	LoggerEnv         = "optionhub-test"
-)
-
 func TestServer_AddOS(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddOS")
 		osName := "ubuntu"
 
 		var expectedID int64 = 1
@@ -51,12 +46,11 @@ func TestServer_AddOS(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
-
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
+		mockLogger.EXPECT().AddFuncName("AddOS")
 		osName := "macOS"
 
 		ctrl := gomock.NewController(t)
@@ -74,6 +68,7 @@ func TestServer_AddOS(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddOS")
 		osName := "windows"
 
 		var expectedID int64
@@ -95,15 +90,17 @@ func TestServer_AddOS(t *testing.T) {
 func TestServer_GetOsByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOsByID")
 		expectedOsName := "ubuntu"
 
 		var id int64 = 3
@@ -117,6 +114,7 @@ func TestServer_GetOsByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOsByID")
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -136,15 +134,18 @@ func TestServer_GetOsByID(t *testing.T) {
 func TestServer_GetOsBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "ubuntu"},
 			{ID: 2, Label: "ubuntuu"},
@@ -168,6 +169,8 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
+
 		search := "w"
 
 		expectedPreview := []model.CategoryItem{
@@ -190,6 +193,8 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
+
 		search := "wi"
 		expectedErr := errors.New("db err")
 
@@ -208,15 +213,18 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 func TestServer_GetAllOs(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_all_os_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAllOs")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "ubuntu"},
 			{ID: 2, Label: "Mac OS"},
@@ -239,6 +247,8 @@ func TestServer_GetAllOs(t *testing.T) {
 	})
 
 	t.Run("get_all_os_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAllOs")
+
 		expectedErr := errors.New("db err")
 
 		mockRepo.EXPECT().GetAllOs().Return(nil, expectedErr)
@@ -256,15 +266,18 @@ func TestServer_GetAllOs(t *testing.T) {
 func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetWorkPlaceBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "avito"},
 			{ID: 2, Label: "avitoo"},
@@ -288,6 +301,8 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetWorkPlaceBySearchName")
+
 		search := "w"
 
 		expectedPreview := []model.CategoryItem{
@@ -310,6 +325,8 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetWorkPlaceBySearchName")
+
 		search := "wi"
 		expectedErr := errors.New("db err")
 
@@ -328,15 +345,18 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 func TestServer_GetWorkPlaceByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetWorkPlaceByID")
+
 		expectedWorkPlaceName := "avito"
 
 		var id int64 = 3
@@ -350,6 +370,8 @@ func TestServer_GetWorkPlaceByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetWorkPlaceByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -371,16 +393,19 @@ func TestServer_AddWorkPlace(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
+
 		workPlaceName := "avito"
 
 		var expectedID int64 = 1
@@ -394,11 +419,11 @@ func TestServer_AddWorkPlace(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
+		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
 
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 		workPlaceName := "wildberries"
 
@@ -417,6 +442,8 @@ func TestServer_AddWorkPlace(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
+
 		workPlaceName := "ozon"
 
 		var expectedID int64
@@ -438,15 +465,18 @@ func TestServer_AddWorkPlace(t *testing.T) {
 func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetStudyPlaceBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "FU"},
 			{ID: 2, Label: "HSE"},
@@ -470,6 +500,8 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetStudyPlaceBySearchName")
+
 		search := "m"
 
 		expectedPreview := []model.CategoryItem{
@@ -492,6 +524,8 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetStudyPlaceBySearchName")
+
 		search := "hs"
 		expectedErr := errors.New("db err")
 
@@ -510,15 +544,18 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 func TestServer_GetStudyPlaceByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetStudyPlaceByID")
+
 		expectedStudyPlaceName := "MAI"
 
 		var id int64 = 3
@@ -532,6 +569,8 @@ func TestServer_GetStudyPlaceByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetStudyPlaceByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -553,16 +592,19 @@ func TestServer_AddStudyPlace(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
+
 		studyPlaceName := "rudn"
 
 		var expectedID int64 = 1
@@ -576,11 +618,11 @@ func TestServer_AddStudyPlace(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
+		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
 
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 		studyPlaceName := "rudn"
 
@@ -599,6 +641,8 @@ func TestServer_AddStudyPlace(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
+
 		studyPlaceName := "rudn"
 
 		var expectedID int64
@@ -620,15 +664,18 @@ func TestServer_AddStudyPlace(t *testing.T) {
 func TestServer_GetHobbyBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetHobbyBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "driving"},
 			{ID: 2, Label: "painting"},
@@ -652,6 +699,8 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetHobbyBySearchName")
+
 		search := "t"
 
 		expectedPreview := []model.CategoryItem{
@@ -674,6 +723,8 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetHobbyBySearchName")
+
 		search := "dr"
 		expectedErr := errors.New("db err")
 
@@ -692,15 +743,18 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 func TestServer_GetHobbyByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetHobbyByID")
+
 		expectedHobbyName := "singing"
 
 		var id int64 = 3
@@ -714,6 +768,8 @@ func TestServer_GetHobbyByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetHobbyByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -735,16 +791,19 @@ func TestServer_AddHobby(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddHobby")
+
 		hobbyName := "boxing"
 
 		var expectedID int64 = 1
@@ -758,11 +817,11 @@ func TestServer_AddHobby(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
+		mockLogger.EXPECT().AddFuncName("AddHobby")
 
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 		hobbyName := "boxing"
 
@@ -781,6 +840,8 @@ func TestServer_AddHobby(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddHobby")
+
 		hobbyName := "boxing"
 
 		var expectedID int64
@@ -802,15 +863,18 @@ func TestServer_AddHobby(t *testing.T) {
 func TestServer_GetSkillBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSkillBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "kafka"},
 			{ID: 2, Label: "s3"},
@@ -834,6 +898,8 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSkillBySearchName")
+
 		search := "q"
 
 		expectedPreview := []model.CategoryItem{
@@ -856,6 +922,8 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSkillBySearchName")
+
 		search := "go"
 		expectedErr := errors.New("db err")
 
@@ -874,15 +942,18 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 func TestServer_GetSkillByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSkillByID")
+
 		expectedSkillName := "kotlin"
 
 		var id int64 = 3
@@ -896,6 +967,8 @@ func TestServer_GetSkillByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSkillByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -917,16 +990,19 @@ func TestServer_AddSkill(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddSkill")
+
 		skillName := "R"
 
 		var expectedID int64 = 1
@@ -940,11 +1016,11 @@ func TestServer_AddSkill(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
+		mockLogger.EXPECT().AddFuncName("AddSkill")
 
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 		skillName := "R"
 
@@ -963,6 +1039,8 @@ func TestServer_AddSkill(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddSkill")
+
 		skillName := "R"
 
 		var expectedID int64
@@ -984,15 +1062,18 @@ func TestServer_AddSkill(t *testing.T) {
 func TestServer_GetCityBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetCityBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "Moscow"},
 			{ID: 2, Label: "New York"},
@@ -1016,6 +1097,8 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetCityBySearchName")
+
 		search := "v"
 
 		expectedPreview := []model.CategoryItem{
@@ -1038,6 +1121,8 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetCityBySearchName")
+
 		search := "ne"
 		expectedErr := errors.New("db err")
 
@@ -1056,15 +1141,18 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 func TestServer_GetCityByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetCityByID")
+
 		expectedCityName := "Almata"
 
 		var id int64 = 3
@@ -1078,6 +1166,8 @@ func TestServer_GetCityByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetCityByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -1099,16 +1189,19 @@ func TestServer_AddCity(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddCity")
+
 		cityName := "Dublin"
 
 		var expectedID int64 = 1
@@ -1122,11 +1215,11 @@ func TestServer_AddCity(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
+		mockLogger.EXPECT().AddFuncName("AddCity")
 
 		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 		cityName := "Dublin"
 
@@ -1145,6 +1238,8 @@ func TestServer_AddCity(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddCity")
+
 		cityName := "Dublin"
 
 		var expectedID int64
@@ -1166,15 +1261,18 @@ func TestServer_AddCity(t *testing.T) {
 func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionBySearchName")
+
 		expectedNames := []model.CategoryItem{
 			{ID: 1, Label: "Cybersecurity"},
 			{ID: 2, Label: "E-Government"},
@@ -1198,6 +1296,8 @@ func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionBySearchName")
+
 		search := "A"
 
 		expectedPreview := []model.CategoryItem{
@@ -1220,6 +1320,8 @@ func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 	})
 
 	t.Run("get_by_name_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionBySearchName")
+
 		search := "ta"
 		expectedErr := errors.New("db err")
 
@@ -1238,15 +1340,18 @@ func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 func TestServer_GetSocietyDirectionByID(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	ctx := context.Background()
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionByID")
+
 		expectedSocietyDirectionName := "Sustainability"
 
 		var id int64 = 3
@@ -1260,6 +1365,8 @@ func TestServer_GetSocietyDirectionByID(t *testing.T) {
 	})
 
 	t.Run("get_by_id_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionByID")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -1281,16 +1388,19 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 
 	ctx := context.Background()
 
-	uuid := "test-uuid"
-	logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	uuid := "test-uuid"
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
+
 		societyDirectionName := "Privacy"
 
 		var expectedID int64 = 1
@@ -1304,16 +1414,17 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		logger := logger_lib.New(LoggerHost, LoggerPort, LoggerServiceName, LoggerEnv)
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
-
-		SocietyDirectionName := "Privacy"
+		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
+
+		ctx := context.Background()
+		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+		SocietyDirectionName := "Privacy"
+
 		mockRepo := service.NewMockDBRepo(ctrl)
 
 		s := service.NewService(mockRepo)
@@ -1327,6 +1438,8 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
+
 		societyDirectionName := "Privacy"
 
 		var expectedID int64
