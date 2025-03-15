@@ -3,17 +3,19 @@ package service_test
 import (
 	"context"
 	"errors"
-	"optionhub-service/internal/config"
-	"optionhub-service/internal/model"
-	"optionhub-service/internal/service"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	logger_lib "github.com/s21platform/logger-lib"
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	logger_lib "github.com/s21platform/logger-lib"
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
+
+	"optionhub-service/internal/config"
+	"optionhub-service/internal/model"
+	"optionhub-service/internal/service"
 )
 
 func TestServer_AddOS(t *testing.T) {

@@ -6,11 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"optionhub-service/internal/config"
-	"optionhub-service/internal/model"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
+
+	"optionhub-service/internal/config"
+	"optionhub-service/internal/model"
 )
 
 type Repository struct {

@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"optionhub-service/internal/infra"
-	"optionhub-service/internal/service"
 
-	logger_lib "github.com/s21platform/logger-lib"
 	"google.golang.org/grpc"
 
+	logger_lib "github.com/s21platform/logger-lib"
 	"github.com/s21platform/metrics-lib/pkg"
+	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 
 	"optionhub-service/internal/config"
+	"optionhub-service/internal/infra"
 	"optionhub-service/internal/repository/postgres"
-
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	"optionhub-service/internal/service"
 )
 
 func main() {

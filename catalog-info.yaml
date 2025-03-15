@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: optionhub
+  description: Сервис опций
+  annotations:
+    github.com/project-slug: s21platform/optionhub-service
+  tags:
+    - grpc
+    - postgres
+  links:
+    - url: https://metric.x.space-21.ru/d/ae48gk8u4ndhcf/optionhub-service?orgId=1
+      title: Grafana
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: optionhub-service-team
+  providesApis:
+    - optionhub-api
