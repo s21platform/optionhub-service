@@ -52,17 +52,17 @@ jobs:
         run: |
           docker build -t ${{ secrets.CR_REGISTRY }}/${{ secrets.CR_NAME }}:develop .
           docker push ${{ secrets.CR_REGISTRY }}/${{ secrets.CR_NAME }}:develop
-    deploy:
-      runs-on: ubuntu-latest
-      needs: build_and_push
-      steps:
-        - name: executing remote ssh commands to deploy
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.HOST_DEVELOP }}
-            username: ${{ secrets.USER }}
-            key: ${{ secrets.PRIVATE_SSH_KEY_DEVELOP }}
-            passphrase: ${{ secrets.PASSPHRASE_DEVELOP }}
-            script: |
-              docker pull ${{ secrets.CR_REGISTRY }}/${{ secrets.CR_NAME }}:develop
-              docker-compose -f ~/space21/staging/staging-deployment/docker-compose.yml --env-file ~/space21/staging/.env up -d ${{ secrets.CR_NAME }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DEVELOP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.PRIVATE_SSH_KEY_DEVELOP }}
+          passphrase: ${{ secrets.PASSPHRASE_DEVELOP }}
+          script: |
+            docker pull ${{ secrets.CR_REGISTRY }}/${{ secrets.CR_NAME }}:develop
+            docker-compose -f ~/space21/staging/staging-deployment/docker-compose.yml --env-file ~/space21/staging/.env up -d ${{ secrets.CR_NAME }}
