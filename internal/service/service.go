@@ -78,9 +78,7 @@ func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetB
 	}, nil
 }
 
-func (s *Service) GetAllOs(ctx context.Context, in *optionhubproto.EmptyOptionhub) (*optionhubproto.GetAllOut, error) {
-	_ = in
-
+func (s *Service) GetAllOs(ctx context.Context, _ *optionhubproto.EmptyOptionhub) (*optionhubproto.GetAllOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("GetAllOs")
 

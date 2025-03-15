@@ -32,7 +32,7 @@ func TestServer_AddOS(t *testing.T) {
 	mockRepo := service.NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("AddOS")
+		mockLogger.EXPECT().AddFuncName("AddOs")
 		osName := "ubuntu"
 
 		var expectedID int64 = 1
@@ -50,12 +50,10 @@ func TestServer_AddOS(t *testing.T) {
 		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-		mockLogger.EXPECT().AddFuncName("AddOS")
-		osName := "macOS"
+		mockLogger.EXPECT().AddFuncName("AddOs")
+		mockLogger.EXPECT().Error("failed to find uuid")
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
+		osName := "macOS"
 
 		s := service.NewService(mockRepo)
 
@@ -68,7 +66,9 @@ func TestServer_AddOS(t *testing.T) {
 	})
 
 	t.Run("add_err", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("AddOS")
+		mockLogger.EXPECT().AddFuncName("AddOs")
+		mockLogger.EXPECT().Error("failed to add new os, err: insert err")
+
 		osName := "windows"
 
 		var expectedID int64
@@ -115,6 +115,8 @@ func TestServer_GetOsByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOsByID")
+		mockLogger.EXPECT().Error("failed to get os by id, err: get err")
+
 		var id int64 = 4
 
 		expectedErr := errors.New("get err")
@@ -194,6 +196,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
+		mockLogger.EXPECT().Error("failed to get os by name, err: db err")
 
 		search := "wi"
 		expectedErr := errors.New("db err")
@@ -248,6 +251,7 @@ func TestServer_GetAllOs(t *testing.T) {
 
 	t.Run("get_all_os_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetAllOs")
+		mockLogger.EXPECT().Error("failed to get all os list: db err")
 
 		expectedErr := errors.New("db err")
 
@@ -326,6 +330,7 @@ func TestServer_GetWorkPlaceBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetWorkPlaceBySearchName")
+		mockLogger.EXPECT().Error("failed to get workplace list: db err")
 
 		search := "wi"
 		expectedErr := errors.New("db err")
@@ -371,6 +376,7 @@ func TestServer_GetWorkPlaceByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetWorkPlaceByID")
+		mockLogger.EXPECT().Error("failed to get workplace by id: get err")
 
 		var id int64 = 4
 
@@ -391,49 +397,41 @@ func TestServer_GetWorkPlaceByID(t *testing.T) {
 func TestServer_AddWorkPlace(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
 
 		workPlaceName := "avito"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddWorkPlace(gomock.Any(), workPlaceName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddWorkPlace(gomock.Any(), workPlaceName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddWorkPlace(ctx, &optionhubproto.AddIn{Value: workPlaceName})
+		id, err := s.AddWorkPlace(ctxWithUUID, &optionhubproto.AddIn{Value: workPlaceName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: workPlaceName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		workPlaceName := "wildberries"
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
-
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddWorkPlace(ctx, &optionhubproto.AddIn{Value: workPlaceName})
+		_, err := s.AddWorkPlace(ctxNoUUID, &optionhubproto.AddIn{Value: workPlaceName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -443,17 +441,16 @@ func TestServer_AddWorkPlace(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddWorkPlace")
+		mockLogger.EXPECT().Error("failed to add new workplace: insert err")
 
 		workPlaceName := "ozon"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddWorkPlace(gomock.Any(), workPlaceName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddWorkPlace(gomock.Any(), workPlaceName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddWorkPlace(ctx, &optionhubproto.AddIn{Value: workPlaceName})
+		_, err := s.AddWorkPlace(ctxWithUUID, &optionhubproto.AddIn{Value: workPlaceName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -525,6 +522,7 @@ func TestServer_GetStudyPlaceBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetStudyPlaceBySearchName")
+		mockLogger.EXPECT().Error("failed to get study place list: db err")
 
 		search := "hs"
 		expectedErr := errors.New("db err")
@@ -570,6 +568,7 @@ func TestServer_GetStudyPlaceByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetStudyPlaceByID")
+		mockLogger.EXPECT().Error("failed to get study place by id: get err")
 
 		var id int64 = 4
 
@@ -590,49 +589,40 @@ func TestServer_GetStudyPlaceByID(t *testing.T) {
 func TestServer_AddStudyPlace(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
-
 		studyPlaceName := "rudn"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddStudyPlace(gomock.Any(), studyPlaceName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddStudyPlace(gomock.Any(), studyPlaceName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddStudyPlace(ctx, &optionhubproto.AddIn{Value: studyPlaceName})
+		id, err := s.AddStudyPlace(ctxWithUUID, &optionhubproto.AddIn{Value: studyPlaceName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: studyPlaceName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		studyPlaceName := "rudn"
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
-
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddStudyPlace(ctx, &optionhubproto.AddIn{Value: studyPlaceName})
+		_, err := s.AddStudyPlace(ctxNoUUID, &optionhubproto.AddIn{Value: studyPlaceName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -642,17 +632,16 @@ func TestServer_AddStudyPlace(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddStudyPlace")
+		mockLogger.EXPECT().Error("failed to add new study place: insert err")
 
 		studyPlaceName := "rudn"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddStudyPlace(gomock.Any(), studyPlaceName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddStudyPlace(gomock.Any(), studyPlaceName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddStudyPlace(ctx, &optionhubproto.AddIn{Value: studyPlaceName})
+		_, err := s.AddStudyPlace(ctxWithUUID, &optionhubproto.AddIn{Value: studyPlaceName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -724,6 +713,7 @@ func TestServer_GetHobbyBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetHobbyBySearchName")
+		mockLogger.EXPECT().Error("failed to get hobby list: db err")
 
 		search := "dr"
 		expectedErr := errors.New("db err")
@@ -769,6 +759,7 @@ func TestServer_GetHobbyByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetHobbyByID")
+		mockLogger.EXPECT().Error("failed to get hobby by id: get err")
 
 		var id int64 = 4
 
@@ -789,49 +780,41 @@ func TestServer_GetHobbyByID(t *testing.T) {
 func TestServer_AddHobby(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddHobby")
 
 		hobbyName := "boxing"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddHobby(gomock.Any(), hobbyName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddHobby(gomock.Any(), hobbyName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddHobby(ctx, &optionhubproto.AddIn{Value: hobbyName})
+		id, err := s.AddHobby(ctxWithUUID, &optionhubproto.AddIn{Value: hobbyName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: hobbyName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddHobby")
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		hobbyName := "boxing"
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
-
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddHobby(ctx, &optionhubproto.AddIn{Value: hobbyName})
+		_, err := s.AddHobby(ctxNoUUID, &optionhubproto.AddIn{Value: hobbyName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -841,17 +824,16 @@ func TestServer_AddHobby(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddHobby")
+		mockLogger.EXPECT().Error("failed to add new hobby: insert err")
 
 		hobbyName := "boxing"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddHobby(gomock.Any(), hobbyName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddHobby(gomock.Any(), hobbyName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddHobby(ctx, &optionhubproto.AddIn{Value: hobbyName})
+		_, err := s.AddHobby(ctxWithUUID, &optionhubproto.AddIn{Value: hobbyName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -923,6 +905,7 @@ func TestServer_GetSkillBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetSkillBySearchName")
+		mockLogger.EXPECT().Error("failed to get skill list: db err")
 
 		search := "go"
 		expectedErr := errors.New("db err")
@@ -968,6 +951,7 @@ func TestServer_GetSkillByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetSkillByID")
+		mockLogger.EXPECT().Error("failed to get skill by id: get err")
 
 		var id int64 = 4
 
@@ -988,49 +972,41 @@ func TestServer_GetSkillByID(t *testing.T) {
 func TestServer_AddSkill(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSkill")
 
 		skillName := "R"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddSkill(gomock.Any(), skillName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddSkill(gomock.Any(), skillName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddSkill(ctx, &optionhubproto.AddIn{Value: skillName})
+		id, err := s.AddSkill(ctxWithUUID, &optionhubproto.AddIn{Value: skillName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: skillName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSkill")
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		skillName := "R"
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
-
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddSkill(ctx, &optionhubproto.AddIn{Value: skillName})
+		_, err := s.AddSkill(ctxNoUUID, &optionhubproto.AddIn{Value: skillName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1040,17 +1016,16 @@ func TestServer_AddSkill(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSkill")
+		mockLogger.EXPECT().Error("failed to add new skill: insert err")
 
 		skillName := "R"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddSkill(gomock.Any(), skillName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddSkill(gomock.Any(), skillName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddSkill(ctx, &optionhubproto.AddIn{Value: skillName})
+		_, err := s.AddSkill(ctxWithUUID, &optionhubproto.AddIn{Value: skillName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1122,6 +1097,7 @@ func TestServer_GetCityBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetCityBySearchName")
+		mockLogger.EXPECT().Error("failed to get city list: db err")
 
 		search := "ne"
 		expectedErr := errors.New("db err")
@@ -1167,6 +1143,7 @@ func TestServer_GetCityByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetCityByID")
+		mockLogger.EXPECT().Error("failed to get city by id: get err")
 
 		var id int64 = 4
 
@@ -1187,49 +1164,41 @@ func TestServer_GetCityByID(t *testing.T) {
 func TestServer_AddCity(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddCity")
 
 		cityName := "Dublin"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddCity(gomock.Any(), cityName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddCity(gomock.Any(), cityName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddCity(ctx, &optionhubproto.AddIn{Value: cityName})
+		id, err := s.AddCity(ctxWithUUID, &optionhubproto.AddIn{Value: cityName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: cityName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddCity")
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockLogger.EXPECT().Error("failed to find uuid")
 
 		cityName := "Dublin"
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockRepo := service.NewMockDBRepo(ctrl)
-
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddCity(ctx, &optionhubproto.AddIn{Value: cityName})
+		_, err := s.AddCity(ctxNoUUID, &optionhubproto.AddIn{Value: cityName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1239,17 +1208,16 @@ func TestServer_AddCity(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddCity")
+		mockLogger.EXPECT().Error("failed to add new city: insert err")
 
 		cityName := "Dublin"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddCity(gomock.Any(), cityName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddCity(gomock.Any(), cityName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddCity(ctx, &optionhubproto.AddIn{Value: cityName})
+		_, err := s.AddCity(ctxWithUUID, &optionhubproto.AddIn{Value: cityName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1321,6 +1289,7 @@ func TestServer_GetSocietyDirectionBySearchName(t *testing.T) {
 
 	t.Run("get_by_name_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionBySearchName")
+		mockLogger.EXPECT().Error("failed to get society direction list: db err")
 
 		search := "ta"
 		expectedErr := errors.New("db err")
@@ -1366,6 +1335,7 @@ func TestServer_GetSocietyDirectionByID(t *testing.T) {
 
 	t.Run("get_by_id_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetSocietyDirectionByID")
+		mockLogger.EXPECT().Error("failed to get society direction by id: get err")
 
 		var id int64 = 4
 
@@ -1386,50 +1356,41 @@ func TestServer_GetSocietyDirectionByID(t *testing.T) {
 func TestServer_AddSocietyDirection(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
 	mockRepo := service.NewMockDBRepo(ctrl)
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+
+	ctxWithUUID := context.Background()
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyUUID, "test-uuid")
+	ctxWithUUID = context.WithValue(ctxWithUUID, config.KeyLogger, mockLogger)
+
+	ctxNoUUID := context.Background()
+	ctxNoUUID = context.WithValue(ctxNoUUID, config.KeyLogger, mockLogger)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
 
 		societyDirectionName := "Privacy"
-
 		var expectedID int64 = 1
 
-		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, uuid).Return(expectedID, nil)
+		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, "test-uuid").Return(expectedID, nil)
 
 		s := service.NewService(mockRepo)
-		id, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: societyDirectionName})
+		id, err := s.AddSocietyDirection(ctxWithUUID, &optionhubproto.AddIn{Value: societyDirectionName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: societyDirectionName})
 	})
 
 	t.Run("add_no_uuid", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
+		mockLogger.EXPECT().Error("failed to find uuid")
 
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-		SocietyDirectionName := "Privacy"
-
-		mockRepo := service.NewMockDBRepo(ctrl)
+		societyDirectionName := "Privacy"
 
 		s := service.NewService(mockRepo)
-
-		_, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: SocietyDirectionName})
+		_, err := s.AddSocietyDirection(ctxNoUUID, &optionhubproto.AddIn{Value: societyDirectionName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
@@ -1439,17 +1400,16 @@ func TestServer_AddSocietyDirection(t *testing.T) {
 
 	t.Run("add_err", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddSocietyDirection")
+		mockLogger.EXPECT().Error("failed to add new society direction: insert err")
 
 		societyDirectionName := "Privacy"
-
 		var expectedID int64
-
 		expectedErr := errors.New("insert err")
 
-		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, uuid).Return(expectedID, expectedErr)
+		mockRepo.EXPECT().AddSocietyDirection(gomock.Any(), societyDirectionName, "test-uuid").Return(expectedID, expectedErr)
 
 		s := service.NewService(mockRepo)
-		_, err := s.AddSocietyDirection(ctx, &optionhubproto.AddIn{Value: societyDirectionName})
+		_, err := s.AddSocietyDirection(ctxWithUUID, &optionhubproto.AddIn{Value: societyDirectionName})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
