@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE attributes
+CREATE TABLE IF NOT EXISTS attributes
 (
     id         SERIAL PRIMARY KEY,
     name       TEXT NOT NULL,

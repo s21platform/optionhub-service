@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE attribute_values
+CREATE TABLE IF NOT EXISTS attribute_values
 (
     id           SERIAL PRIMARY KEY,
     attribute_id INT REFERENCES attributes (id) ON DELETE CASCADE,
