@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 	"log"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
 
@@ -453,4 +455,33 @@ func (r *Repository) AddSocietyDirection(ctx context.Context, name, uuid string)
 	}
 
 	return id, nil
+}
+
+func (r *Repository) SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error {
+	var attributeObj model.Attribute
+
+	attributeObj, err := attributeObj.AttributeToDTO(in)
+
+	if err != nil {
+		return fmt.Errorf("failed to convert grpc message to dto: %v", err)
+	}
+
+	query := squirrel.Insert("attribute_values").
+		Columns("attribute_id", "value", "parent_id").
+		Values(attributeObj.AttributeId, attributeObj.Value, attributeObj.ParentId).
+		PlaceholderFormat(squirrel.Dollar)
+
+	sqlQuery, args, err := query.ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, sqlQuery, args)
+
+	if err != nil {
+		return fmt.Errorf("failed to add attribute into postgres: %v", err)
+	}
+
+	return nil
 }

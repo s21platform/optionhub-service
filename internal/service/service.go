@@ -7,8 +7,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"optionhub-service/internal/config"
 	"optionhub-service/internal/model"
@@ -16,11 +18,12 @@ import (
 
 type Service struct {
 	optionhubproto.UnimplementedOptionhubServiceServer
-	dbR DBRepo
+	dbR      DBRepo
+	setAttrP *kafka_lib.KafkaProducer
 }
 
-func NewService(repo DBRepo) *Service {
-	return &Service{dbR: repo}
+func NewService(repo DBRepo, setAttributeProducer *kafka_lib.KafkaProducer) *Service {
+	return &Service{dbR: repo, setAttrP: setAttributeProducer}
 }
 
 func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
@@ -435,4 +438,24 @@ func (s *Service) AddSocietyDirection(ctx context.Context, in *optionhubproto.Ad
 	}
 
 	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
+}
+
+func (s *Service) SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("SetAttribute")
+
+	err := s.dbR.SetAttribute(ctx, in)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
+		return status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
+	}
+
+	message := model.SetAttributeMessage{AttributeId: in.AttributeId}
+	err = s.setAttrP.ProduceMessage(message)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
+		return status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
+	}
+
+	return nil
 }

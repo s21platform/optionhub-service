@@ -3,6 +3,7 @@ package service
 
 import (
 	"context"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 	"optionhub-service/internal/model"
 )
 
@@ -42,4 +43,6 @@ type DBRepo interface {
 	GetSocietyDirectionPreview(ctx context.Context) (model.CategoryItemList, error)
 	GetSocietyDirectionByID(ctx context.Context, id int64) (string, error)
 	AddSocietyDirection(ctx context.Context, name, uuid string) (int64, error)
+
+	SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error
 }
