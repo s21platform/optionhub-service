@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS attribute_request
+CREATE TABLE IF NOT EXISTS option_requests
 (
     id           SERIAL PRIMARY KEY,
     attribute_id INT REFERENCES attributes (id) ON DELETE CASCADE,
@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS attribute_request
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS attribute_request;
+DROP TABLE IF EXISTS option_requests;
