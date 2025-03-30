@@ -10,11 +10,13 @@ import (
 	logger_lib "github.com/s21platform/logger-lib"
 	"github.com/s21platform/metrics-lib/pkg"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	optionhubprotov1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
-	"optionhub-service/internal/config"
-	"optionhub-service/internal/infra"
-	"optionhub-service/internal/repository/postgres"
-	"optionhub-service/internal/service"
+	"github.com/s21platform/optionhub-service/internal/config"
+	"github.com/s21platform/optionhub-service/internal/infra"
+	"github.com/s21platform/optionhub-service/internal/repository/postgres"
+	"github.com/s21platform/optionhub-service/internal/service"
+	servicev1 "github.com/s21platform/optionhub-service/internal/service/v1"
 )
 
 func main() {
@@ -32,6 +34,7 @@ func main() {
 	defer metrics.Disconnect()
 
 	optionhubService := service.NewService(dbRepo)
+	optionhubServicev1 := servicev1.NewService(dbRepo)
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -41,6 +44,7 @@ func main() {
 		),
 	)
 	optionhubproto.RegisterOptionhubServiceServer(s, optionhubService)
+	optionhubprotov1.RegisterOptionhubServiceV1Server(s, optionhubServicev1)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {

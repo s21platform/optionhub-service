@@ -10,8 +10,8 @@ import (
 	logger_lib "github.com/s21platform/logger-lib"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 
-	"optionhub-service/internal/config"
-	"optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/internal/config"
+	"github.com/s21platform/optionhub-service/internal/model"
 )
 
 type Service struct {

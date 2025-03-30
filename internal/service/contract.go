@@ -3,7 +3,8 @@ package service
 
 import (
 	"context"
-	"optionhub-service/internal/model"
+
+	"github.com/s21platform/optionhub-service/internal/model"
 )
 
 type DBRepo interface {

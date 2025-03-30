@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"log"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
 
-	"optionhub-service/internal/config"
-	"optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/internal/config"
+	"github.com/s21platform/optionhub-service/internal/model"
 )
 
 type Repository struct {
@@ -105,4 +106,54 @@ func (r *Repository) GetAllOs() (model.CategoryItemList, error) {
 	}
 
 	return OSList, nil
+}
+
+func (r *Repository) GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error) {
+	var res []model.Attribute
+
+	query, args, err := sq.
+		Select("id", "name").
+		From("attributes").
+		Where(sq.Eq{"id": ids}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %v", err)
+	}
+
+	err = r.connection.SelectContext(ctx, &res, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %v", err)
+	}
+
+	return res, nil
+}
+
+func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequestList, error) {
+	var res model.OptionRequestList
+
+	query, args, err := sq.
+		Select(
+			"id",
+			"attribute_id",
+			"value",
+			"user_uuid",
+			"created_at",
+		).
+		From("option_requests").
+		OrderBy("id DESC").
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %v", err)
+	}
+
+	err = r.connection.SelectContext(ctx, &res, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get option requests: %v", err)
+	}
+
+	return res, nil
 }
