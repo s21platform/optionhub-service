@@ -46,10 +46,10 @@ func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*opt
 
 	resp := requests.ToDTO()
 
-	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.ID })
+	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.AttributeId })
 	lo.ForEach(resp, func(o *optionhub.OptionRequestItem, _ int) {
 		if attr, ok := attributeMap[o.AttributeId]; ok {
-			o.AttributeValue = attr.Name
+			o.AttributeValue = attr.Value
 		}
 	})
 

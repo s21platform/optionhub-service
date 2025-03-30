@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 	model "github.com/s21platform/optionhub-service/internal/model"
 )
 
@@ -63,4 +64,18 @@ func (m *MockDBRepo) GetOptionRequests(ctx context.Context) (model.OptionRequest
 func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
+}
+
+// SetAttribute mocks base method.
+func (m *MockDBRepo) SetAttribute(ctx context.Context, in *v1.SetAttributeByIdIn) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAttribute", ctx, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetAttribute indicates an expected call of SetAttribute.
+func (mr *MockDBRepoMockRecorder) SetAttribute(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAttribute", reflect.TypeOf((*MockDBRepo)(nil).SetAttribute), ctx, in)
 }
