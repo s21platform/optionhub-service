@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
 	"github.com/s21platform/metrics-lib/pkg"
 	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
@@ -33,8 +34,10 @@ func main() {
 	}
 	defer metrics.Disconnect()
 
+	producerSetAttribute := kafka_lib.NewProducer(cfg.Kafka.Server, cfg.Kafka.SetAttribute)
+
 	optionhubService := service.NewService(dbRepo)
-	optionhubServicev1 := servicev1.NewService(dbRepo)
+	optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
