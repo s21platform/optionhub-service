@@ -9,7 +9,7 @@ import (
 
 	"github.com/s21platform/metrics-lib/pkg"
 
-	"optionhub-service/internal/config"
+	"github.com/s21platform/optionhub-service/internal/config"
 )
 
 func MetricsInterceptor(metrics *pkg.Metrics) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,

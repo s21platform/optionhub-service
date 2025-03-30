@@ -6,8 +6,9 @@ package service
 
 import (
 	context "context"
-	model "optionhub-service/internal/model"
 	reflect "reflect"
+
+	"github.com/s21platform/optionhub-service/internal/model"
 
 	gomock "github.com/golang/mock/gomock"
 )
