@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	logger_lib "github.com/s21platform/logger-lib"
-	optionhub "github.com/s21platform/optionhub-proto/optionhub/v1"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	logger_lib "github.com/s21platform/logger-lib"
+	optionhub "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
