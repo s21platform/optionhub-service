@@ -6,7 +6,7 @@ import (
 
 	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
-  "github.com/s21platform/optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/internal/model"
 )
 
 type DBRepo interface {
@@ -16,5 +16,5 @@ type DBRepo interface {
 	GetOsPreview(ctx context.Context) (model.CategoryItemList, error)
 	GetAllOs() (model.CategoryItemList, error)
 
-  SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error
+	SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error
 }

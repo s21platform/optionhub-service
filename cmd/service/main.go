@@ -36,10 +36,10 @@ func main() {
 
 	producerSetAttribute := kafka_lib.NewProducer(cfg.Kafka.Server, cfg.Kafka.SetAttribute)
 
-  optionhubService := service.NewService(dbRepo)
-  optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)
+	optionhubService := service.NewService(dbRepo)
+	optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)
 
-  s := grpc.NewServer(
+	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			infra.AuthInterceptor,
 			infra.MetricsInterceptor(metrics),
