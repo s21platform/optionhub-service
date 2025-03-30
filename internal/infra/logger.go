@@ -2,10 +2,11 @@ package infra
 
 import (
 	"context"
-	"optionhub-service/internal/config"
 
 	logger_lib "github.com/s21platform/logger-lib"
 	"google.golang.org/grpc"
+
+	"github.com/s21platform/optionhub-service/internal/config"
 )
 
 func Logger(logger *logger_lib.Logger) func(context.Context, interface{}, *grpc.UnaryServerInfo, grpc.UnaryHandler) (interface{}, error) {

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"optionhub-service/internal/config"
+	"github.com/s21platform/optionhub-service/internal/config"
 )
 
 func AuthInterceptor(
