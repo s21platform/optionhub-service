@@ -34,7 +34,7 @@ func main() {
 	}
 	defer metrics.Disconnect()
 
-	producerSetAttribute := kafka_lib.NewProducer(cfg.Kafka.Server, cfg.Kafka.SetAttribute)
+	producerSetAttribute := kafka_lib.NewProducer(cfg.Kafka.Host, cfg.Kafka.SetAttributeTopic)
 
 	optionhubService := service.NewService(dbRepo)
 	optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)

@@ -9,10 +9,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
+	new_attribute "github.com/s21platform/optionhub-proto/optionhub/set_new_attribute"
 	optionhub "github.com/s21platform/optionhub-proto/optionhub/v1"
-	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
@@ -21,10 +20,10 @@ import (
 type Service struct {
 	optionhub.UnimplementedOptionhubServiceV1Server
 	dbR      DBRepo
-	setAttrP *kafka_lib.KafkaProducer
+	setAttrP SetAttributeProducer
 }
 
-func NewService(repo DBRepo, setAttributeProducer *kafka_lib.KafkaProducer) *Service {
+func NewService(repo DBRepo, setAttributeProducer SetAttributeProducer) *Service {
 	return &Service{dbR: repo, setAttrP: setAttributeProducer}
 }
 
@@ -46,10 +45,10 @@ func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*opt
 
 	resp := requests.ToDTO()
 
-	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.AttributeId })
+	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.ID })
 	lo.ForEach(resp, func(o *optionhub.OptionRequestItem, _ int) {
 		if attr, ok := attributeMap[o.AttributeId]; ok {
-			o.AttributeValue = attr.Value
+			o.AttributeValue = attr.Name
 		}
 	})
 
@@ -58,17 +57,26 @@ func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*opt
 	}, nil
 }
 
-func (s *Service) SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error {
+func (s *Service) SetAttribute(ctx context.Context, in *optionhub.SetAttributeByIdIn) error {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("SetAttribute")
+	logger.AddFuncName("SetAttributeTopic")
 
-	err := s.dbR.SetAttribute(ctx, in)
+	var attributeObj model.AttributeValue
+
+	attributeObj, err := attributeObj.ToDTO(in)
+
+	if err != nil {
+		return fmt.Errorf("failed to convert grpc message to dto: %v", err)
+	}
+
+	err = s.dbR.SetAttribute(ctx, attributeObj)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
 		return status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
 	}
 
-	message := model.SetAttributeMessage{AttributeId: in.AttributeId}
+	message := &new_attribute.SetNewAttribute{AttributeId: in.AttributeId}
+
 	err = s.setAttrP.ProduceMessage(message)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))

@@ -10,8 +10,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
-	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
-
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
 )
@@ -159,18 +157,10 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 	return res, nil
 }
 
-func (r *Repository) SetAttribute(ctx context.Context, in *optionhubproto_v1.SetAttributeByIdIn) error {
-	var attributeObj model.Attribute
-
-	attributeObj, err := attributeObj.AttributeToDTO(in)
-
-	if err != nil {
-		return fmt.Errorf("failed to convert grpc message to dto: %v", err)
-	}
-
+func (r *Repository) SetAttribute(ctx context.Context, in model.AttributeValue) error {
 	query := sq.Insert("attribute_values").
 		Columns("attribute_id", "value", "parent_id").
-		Values(attributeObj.AttributeId, attributeObj.Value, attributeObj.ParentId).
+		Values(in.AttributeId, in.Value, in.ParentId).
 		PlaceholderFormat(sq.Dollar)
 
 	sqlQuery, args, err := query.ToSql()

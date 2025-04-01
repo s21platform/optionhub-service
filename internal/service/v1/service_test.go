@@ -33,7 +33,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	mockRepo := service.NewMockDBRepo(ctrl)
-	kafkaProducer := kafka_lib.NewProducer("localhost:9092", "test")
+	kafkaProducer := service.NewMockSetAttributeProducer(ctrl)
 
 	t.Run("get_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
@@ -51,7 +51,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 		}
 
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
-		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{AttributeId: 100, Value: "Linux"}}, nil)
+		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{ID: 100, Name: "Linux"}}, nil)
 
 		s := service.NewService(mockRepo, kafkaProducer)
 		result, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
@@ -118,7 +118,7 @@ func TestService_SetAttribute(t *testing.T) {
 	kafkaProducer := kafka_lib.NewProducer("localhost:9092", "test")
 
 	t.Run("set_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("SetAttribute")
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
 
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(nil)
 
@@ -129,7 +129,7 @@ func TestService_SetAttribute(t *testing.T) {
 	})
 
 	t.Run("set_error", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("SetAttribute")
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
 		mockLogger.EXPECT().Error("failed to add new attribute: test error")
 
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(errors.New("test error"))

@@ -43,8 +43,8 @@ type Platform struct {
 }
 
 type Kafka struct {
-	Server       string `env:"KAFKA_SERVER"`
-	SetAttribute string `env:"KAFKA_SET_ATTRIBUTE"`
+	Host              string `env:"KAFKA_SERVER"`
+	SetAttributeTopic string `env:"STAFF_SET_ATTRIBUTE"`
 }
 
 func NewConfig() *Config {
