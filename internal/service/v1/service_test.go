@@ -14,7 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
 
 	"github.com/s21platform/optionhub-service/internal/config"
@@ -107,7 +106,6 @@ func TestService_GetOptionRequests(t *testing.T) {
 func TestService_SetAttribute(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.NewConfig()
 	ctx := context.Background()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -116,7 +114,7 @@ func TestService_SetAttribute(t *testing.T) {
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	mockRepo := service.NewMockDBRepo(ctrl)
-	kafkaProducer := kafka_lib.NewProducer(cfg.Kafka.Host, cfg.Kafka.SetAttributeTopic)
+	kafkaProducer := service.NewMockSetAttributeProducer(ctrl)
 
 	t.Run("set_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")

@@ -13,10 +13,6 @@ type AttributeValue struct {
 	ParentId    int64  `db:"parent_id"`
 }
 
-type SetAttributeMessage struct {
-	AttributeId int64 `json:"attribute_id"`
-}
-
 func (a *AttributeValue) ToDTO(in *optionhubproto_v1.SetAttributeByIdIn) (AttributeValue, error) {
 	result := AttributeValue{
 		AttributeId: in.AttributeId,
