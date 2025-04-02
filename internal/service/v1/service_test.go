@@ -1,4 +1,4 @@
-package service_test
+package service
 
 import (
 	"context"
@@ -18,7 +18,6 @@ import (
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
-	"github.com/s21platform/optionhub-service/internal/service/v1"
 )
 
 func TestService_GetOptionRequests(t *testing.T) {
@@ -31,8 +30,8 @@ func TestService_GetOptionRequests(t *testing.T) {
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
-	kafkaProducer := service.NewMockSetAttributeProducer(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
+	kafkaProducer := NewMockSetAttributeProducer(ctrl)
 
 	t.Run("get_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
@@ -52,7 +51,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
 		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{ID: 100, Name: "Linux"}}, nil)
 
-		s := service.NewService(mockRepo, kafkaProducer)
+		s := NewService(mockRepo, kafkaProducer)
 		result, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		assert.NoError(t, err)
@@ -70,7 +69,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(nil, errors.New("test error"))
 
-		s := service.NewService(mockRepo, kafkaProducer)
+		s := NewService(mockRepo, kafkaProducer)
 		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
@@ -93,7 +92,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
 		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return(nil, errors.New("test error"))
 
-		s := service.NewService(mockRepo, kafkaProducer)
+		s := NewService(mockRepo, kafkaProducer)
 		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
@@ -113,15 +112,15 @@ func TestService_SetAttribute(t *testing.T) {
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
-	mockProducer := service.NewMockSetAttributeProducer(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
+	mockProducer := NewMockSetAttributeProducer(ctrl)
 
 	t.Run("set_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(nil)
 		mockProducer.EXPECT().ProduceMessage(gomock.Any()).Return(nil)
 
-		s := service.NewService(mockRepo, mockProducer)
+		s := NewService(mockRepo, mockProducer)
 		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
 
 		assert.NoError(t, err)
@@ -133,7 +132,7 @@ func TestService_SetAttribute(t *testing.T) {
 
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(errors.New("test error"))
 
-		s := service.NewService(mockRepo, mockProducer)
+		s := NewService(mockRepo, mockProducer)
 		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
 
 		st, ok := status.FromError(err)
