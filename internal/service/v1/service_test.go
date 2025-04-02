@@ -114,14 +114,14 @@ func TestService_SetAttribute(t *testing.T) {
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	mockRepo := service.NewMockDBRepo(ctrl)
-	kafkaProducer := service.NewMockSetAttributeProducer(ctrl)
+	mockProducer := service.NewMockSetAttributeProducer(ctrl)
 
 	t.Run("set_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
-
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(nil)
+		mockProducer.EXPECT().ProduceMessage(gomock.Any()).Return(nil)
 
-		s := service.NewService(mockRepo, kafkaProducer)
+		s := service.NewService(mockRepo, mockProducer)
 		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
 
 		assert.NoError(t, err)
@@ -133,7 +133,7 @@ func TestService_SetAttribute(t *testing.T) {
 
 		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(errors.New("test error"))
 
-		s := service.NewService(mockRepo, kafkaProducer)
+		s := service.NewService(mockRepo, mockProducer)
 		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
 
 		st, ok := status.FromError(err)
