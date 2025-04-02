@@ -22,7 +22,6 @@ func TestServer_AddOS(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -218,10 +217,10 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 func TestServer_GetAllOs(t *testing.T) {
 	t.Parallel()
 
+	ctx := context.Background()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	ctx := context.Background()
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
