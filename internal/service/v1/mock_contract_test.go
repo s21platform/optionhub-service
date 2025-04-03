@@ -35,6 +35,20 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
+// AddAttributeValue mocks base method.
+func (m *MockDBRepo) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAttributeValue", ctx, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAttributeValue indicates an expected call of AddAttributeValue.
+func (mr *MockDBRepoMockRecorder) AddAttributeValue(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAttributeValue", reflect.TypeOf((*MockDBRepo)(nil).AddAttributeValue), ctx, in)
+}
+
 // GetAttributeValueById mocks base method.
 func (m *MockDBRepo) GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error) {
 	m.ctrl.T.Helper()
@@ -63,20 +77,6 @@ func (m *MockDBRepo) GetOptionRequests(ctx context.Context) (model.OptionRequest
 func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
-}
-
-// SetAttribute mocks base method.
-func (m *MockDBRepo) SetAttribute(ctx context.Context, in model.AttributeValue) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetAttribute", ctx, in)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SetAttribute indicates an expected call of SetAttribute.
-func (mr *MockDBRepoMockRecorder) SetAttribute(ctx, in interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAttribute", reflect.TypeOf((*MockDBRepo)(nil).SetAttribute), ctx, in)
 }
 
 // MockSetAttributeProducer is a mock of SetAttributeProducer interface.

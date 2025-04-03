@@ -11,7 +11,7 @@ type DBRepo interface {
 	GetOptionRequests(ctx context.Context) (model.OptionRequestList, error)
 	GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error)
 
-	SetAttribute(ctx context.Context, in model.AttributeValue) error
+	AddAttributeValue(ctx context.Context, in model.AttributeValue) error
 }
 
 type SetAttributeProducer interface {

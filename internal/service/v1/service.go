@@ -57,7 +57,7 @@ func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*opt
 	}, nil
 }
 
-func (s *Service) SetAttribute(ctx context.Context, in *optionhub.SetAttributeByIdIn) error {
+func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttributeValueIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("SetAttributeTopic")
 
@@ -66,13 +66,13 @@ func (s *Service) SetAttribute(ctx context.Context, in *optionhub.SetAttributeBy
 	attributeObj, err := attributeObj.ToDTO(in)
 
 	if err != nil {
-		return fmt.Errorf("failed to convert grpc message to dto: %v", err)
+		return &emptypb.Empty{}, fmt.Errorf("failed to convert grpc message to dto: %v", err)
 	}
 
-	err = s.dbR.SetAttribute(ctx, attributeObj)
+	err = s.dbR.AddAttributeValue(ctx, attributeObj)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
-		return status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
 	}
 
 	message := &new_attribute.SetNewAttribute{AttributeId: in.AttributeId}
@@ -80,8 +80,8 @@ func (s *Service) SetAttribute(ctx context.Context, in *optionhub.SetAttributeBy
 	err = s.setAttrP.ProduceMessage(message)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
-		return status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
 	}
 
-	return nil
+	return &emptypb.Empty{}, nil
 }

@@ -13,7 +13,7 @@ type AttributeValue struct {
 	ParentId    int64  `db:"parent_id"`
 }
 
-func (a *AttributeValue) ToDTO(in *optionhubproto_v1.SetAttributeByIdIn) (AttributeValue, error) {
+func (a *AttributeValue) ToDTO(in *optionhubproto_v1.AddAttributeValueIn) (AttributeValue, error) {
 	result := AttributeValue{
 		AttributeId: in.AttributeId,
 		Value:       in.Value,

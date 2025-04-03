@@ -117,11 +117,11 @@ func TestService_SetAttribute(t *testing.T) {
 
 	t.Run("set_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
-		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(nil)
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(nil)
 		mockProducer.EXPECT().ProduceMessage(gomock.Any()).Return(nil)
 
 		s := NewService(mockRepo, mockProducer)
-		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
+		_, err := s.AddAttributeValue(ctx, &optionhubproto_v1.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
 
 		assert.NoError(t, err)
 	})
@@ -130,10 +130,10 @@ func TestService_SetAttribute(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
 		mockLogger.EXPECT().Error("failed to add new attribute: test error")
 
-		mockRepo.EXPECT().SetAttribute(ctx, gomock.Any()).Return(errors.New("test error"))
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(errors.New("test error"))
 
 		s := NewService(mockRepo, mockProducer)
-		err := s.SetAttribute(ctx, &optionhubproto_v1.SetAttributeByIdIn{AttributeId: 1, Value: "Linux"})
+		_, err := s.AddAttributeValue(ctx, &optionhubproto_v1.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
