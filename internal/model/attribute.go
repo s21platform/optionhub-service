@@ -10,7 +10,7 @@ type Attribute struct {
 type AttributeValue struct {
 	AttributeId int64  `db:"attribute_id"`
 	Value       string `db:"value"`
-	ParentId    int64  `db:"parent_id"`
+	ParentId    int64  `db:"parent_id,omitempty"`
 }
 
 func (a *AttributeValue) ToDTO(in *optionhubproto_v1.AddAttributeValueIn) (AttributeValue, error) {

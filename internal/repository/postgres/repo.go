@@ -177,7 +177,6 @@ func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeVa
 		return fmt.Errorf("failed to build SQL query: %v", err)
 	}
 
-	fmt.Println(sqlQuery, args)
 	_, err = r.connection.ExecContext(ctx, sqlQuery, args...)
 
 	if err != nil {
