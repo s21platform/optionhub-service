@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 )
 
@@ -17,11 +16,10 @@ type AttributeValue struct {
 }
 
 func (a *AttributeValue) ToDTO(in *optionhubproto_v1.AddAttributeValueIn) (AttributeValue, error) {
-	fmt.Println(in.ParentId)
 	result := AttributeValue{
 		AttributeId: in.AttributeId,
 		Value:       in.Value,
-		ParentId:    *in.ParentId,
+		ParentId:    in.ParentId,
 	}
 	return result, nil
 }
