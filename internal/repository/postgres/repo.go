@@ -159,23 +159,25 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 
 func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
 	var query sq.InsertBuilder
-	if in.ParentId == 0 {
-		query = sq.Insert("attribute_values").
-			Columns("attribute_id", "value").
-			Values(in.AttributeId, in.Value).
-			PlaceholderFormat(sq.Dollar)
-	} else {
-		query = sq.Insert("attribute_values").
-			Columns("attribute_id", "value", "parent_id").
-			Values(in.AttributeId, in.Value, in.ParentId).
-			PlaceholderFormat(sq.Dollar)
-	}
+	//if in.ParentId == 0 {
+	//	query = sq.Insert("attribute_values").
+	//		Columns("attribute_id", "value").
+	//		Values(in.AttributeId, in.Value).
+	//		PlaceholderFormat(sq.Dollar)
+	//} else {
+	query = sq.Insert("attribute_values").
+		Columns("attribute_id", "value", "parent_id").
+		Values(in.AttributeId, in.Value, in.ParentId).
+		PlaceholderFormat(sq.Dollar)
+	//}
 
 	sqlQuery, args, err := query.ToSql()
 
 	if err != nil {
 		return fmt.Errorf("failed to build SQL query: %v", err)
 	}
+
+	fmt.Println(sqlQuery, args)
 
 	_, err = r.connection.ExecContext(ctx, sqlQuery, args...)
 

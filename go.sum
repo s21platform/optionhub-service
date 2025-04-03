@@ -48,8 +48,8 @@ github.com/s21platform/logger-lib v0.0.6 h1:Aa3wV7zsaUSUkLa4P8stKNKxmKpZEn9dNBsk
 github.com/s21platform/logger-lib v0.0.6/go.mod h1:KjnZvBFSCUriTW9QCp9y1LAPU4gUo3m8PmWNR3Th7MI=
 github.com/s21platform/metrics-lib v0.0.8 h1:w2AzbTcN8d9GYScUQrQL1D2bThUqRbsJTzkU8pD3APo=
 github.com/s21platform/metrics-lib v0.0.8/go.mod h1:Z1Aiy5uuyEmM//rQmhqkVh0JR8l5sVwe83TQegdNFxQ=
-github.com/s21platform/optionhub-proto v1.0.16 h1:xxCL/SvOpyURlU5dst8AOy8pdv09SRNckq67BQrRRQo=
-github.com/s21platform/optionhub-proto v1.0.16/go.mod h1:drAGej/ZykdMnAOs4xljgKo6KZrNCZzrCslQ6noBqhM=
+github.com/s21platform/optionhub-proto v1.0.17 h1:R7Ivgc+LZH4wZwXrm9oqnQbRQFlIPO/r0SiEHIHish0=
+github.com/s21platform/optionhub-proto v1.0.17/go.mod h1:drAGej/ZykdMnAOs4xljgKo6KZrNCZzrCslQ6noBqhM=
 github.com/samber/lo v1.49.1 h1:4BIFyVfuQSEpluc7Fua+j1NolZHiEHEpaSEKdsH0tew=
 github.com/samber/lo v1.49.1/go.mod h1:dO6KHFzUKXgP8LDhU0oI8d2hekjXnGOu0DB8Jecxd6o=
 github.com/segmentio/kafka-go v0.4.47 h1:IqziR4pA3vrZq7YdRxaT3w1/5fvIH5qpCwstUanQQB0=
