@@ -164,7 +164,7 @@ func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeVa
 	}
 	query := sq.Insert("attribute_values").
 		Columns("attribute_id", "value", "parent_id").
-		Values(in.AttributeId, in.Value, parentId).
+		Values(in.AttributeId, in.Value, *parentId).
 		PlaceholderFormat(sq.Dollar)
 
 	sqlQuery, args, err := query.ToSql()
