@@ -158,13 +158,13 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 }
 
 func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
-	var parentId *int64 = nil
+	var parentId interface{} = nil
 	if in.ParentId != nil {
-		parentId = in.ParentId
+		parentId = *in.ParentId
 	}
 	query := sq.Insert("attribute_values").
 		Columns("attribute_id", "value", "parent_id").
-		Values(in.AttributeId, in.Value, *parentId).
+		Values(in.AttributeId, in.Value, parentId).
 		PlaceholderFormat(sq.Dollar)
 
 	sqlQuery, args, err := query.ToSql()
