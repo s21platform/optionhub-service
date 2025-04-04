@@ -162,6 +162,7 @@ func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeVa
 	if in.ParentId != nil {
 		parentId = *in.ParentId
 	}
+
 	query := sq.Insert("attribute_values").
 		Columns("attribute_id", "value", "parent_id").
 		Values(in.AttributeId, in.Value, parentId).
