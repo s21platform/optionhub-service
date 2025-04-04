@@ -158,17 +158,15 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 }
 
 func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
-	var parentId interface{} = nil
+	queryTmp := sq.Insert("attribute_values").
+		Columns("attribute_id", "value").
+		Values(in.AttributeId, in.Value)
+
 	if in.ParentId != nil {
-		parentId = *in.ParentId
+		queryTmp = queryTmp.Columns("parent_id").Values(*in.ParentId)
 	}
 
-	query := sq.Insert("attribute_values").
-		Columns("attribute_id", "value", "parent_id").
-		Values(in.AttributeId, in.Value, parentId).
-		PlaceholderFormat(sq.Dollar)
-
-	sqlQuery, args, err := query.ToSql()
+	sqlQuery, args, err := queryTmp.PlaceholderFormat(sq.Dollar).ToSql()
 
 	if err != nil {
 		return fmt.Errorf("failed to build SQL query: %v", err)
