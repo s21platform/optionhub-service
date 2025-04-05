@@ -15,6 +15,10 @@ import (
 	"github.com/s21platform/optionhub-service/internal/model"
 )
 
+const (
+	attributeValuesTable = "attribute_values"
+)
+
 type Repository struct {
 	connection *sqlx.DB
 }
@@ -156,4 +160,28 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 	}
 
 	return res, nil
+}
+
+func (r *Repository) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
+	var values model.AttributeValueList
+
+	query, args, err := sq.
+		Select(
+			"id",
+			"value",
+			"parent_id",
+		).
+		From(attributeValuesTable).
+		Where(sq.Eq{"attribute_id": attributeId}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %v", err)
+	}
+
+	err = r.connection.SelectContext(ctx, &values, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %v", err)
+	}
+	return values, nil
 }
