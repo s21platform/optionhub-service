@@ -1,4 +1,4 @@
-package service_test
+package service
 
 import (
 	"context"
@@ -15,14 +15,12 @@ import (
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
-	"github.com/s21platform/optionhub-service/internal/service"
 )
 
 func TestServer_AddOS(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -31,7 +29,7 @@ func TestServer_AddOS(t *testing.T) {
 	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("add_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("AddOs")
@@ -41,7 +39,7 @@ func TestServer_AddOS(t *testing.T) {
 
 		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedID, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		id, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
 		assert.NoError(t, err)
 		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: osName})
@@ -57,7 +55,7 @@ func TestServer_AddOS(t *testing.T) {
 
 		osName := "macOS"
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 
 		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
 
@@ -79,7 +77,7 @@ func TestServer_AddOS(t *testing.T) {
 
 		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedID, expectedErr)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
 
 		st, ok := status.FromError(err)
@@ -99,7 +97,7 @@ func TestServer_GetOsByID(t *testing.T) {
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("get_by_id_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOsByID")
@@ -109,7 +107,7 @@ func TestServer_GetOsByID(t *testing.T) {
 
 		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return(expectedOsName, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		osName, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 		assert.NoError(t, err)
 		assert.Equal(t, osName, &optionhubproto.GetByIdOut{Id: id, Value: expectedOsName})
@@ -125,7 +123,7 @@ func TestServer_GetOsByID(t *testing.T) {
 
 		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return("", expectedErr)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		_, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
 
 		st, ok := status.FromError(err)
@@ -145,7 +143,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("get_by_name_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
@@ -166,7 +164,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(expectedNames, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 		assert.NoError(t, err)
 		assert.Equal(t, osNames, expectedRes)
@@ -190,7 +188,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 		mockRepo.EXPECT().GetOsPreview(gomock.Any()).Return(expectedPreview, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 		assert.NoError(t, err)
 		assert.Equal(t, osNames, expectedRes)
@@ -205,7 +203,7 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 
 		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(nil, expectedErr)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		_, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
 
 		st, ok := status.FromError(err)
@@ -218,14 +216,14 @@ func TestServer_GetOsBySearchName(t *testing.T) {
 func TestServer_GetAllOs(t *testing.T) {
 	t.Parallel()
 
+	ctx := context.Background()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	ctx := context.Background()
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
 
 	t.Run("get_all_os_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetAllOs")
@@ -245,7 +243,7 @@ func TestServer_GetAllOs(t *testing.T) {
 
 		mockRepo.EXPECT().GetAllOs().Return(expectedNames, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		osNames, err := s.GetAllOs(ctx, &optionhubproto.EmptyOptionhub{})
 		assert.NoError(t, err)
 		assert.Equal(t, osNames, expectedRes)
@@ -259,7 +257,7 @@ func TestServer_GetAllOs(t *testing.T) {
 
 		mockRepo.EXPECT().GetAllOs().Return(nil, expectedErr)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo)
 		_, err := s.GetAllOs(ctx, &optionhubproto.EmptyOptionhub{})
 
 		st, ok := status.FromError(err)

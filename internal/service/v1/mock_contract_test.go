@@ -35,6 +35,20 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
+// AddAttributeValue mocks base method.
+func (m *MockDBRepo) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddAttributeValue", ctx, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAttributeValue indicates an expected call of AddAttributeValue.
+func (mr *MockDBRepoMockRecorder) AddAttributeValue(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAttributeValue", reflect.TypeOf((*MockDBRepo)(nil).AddAttributeValue), ctx, in)
+}
+
 // GetAttributeValueById mocks base method.
 func (m *MockDBRepo) GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error) {
 	m.ctrl.T.Helper()
@@ -63,4 +77,41 @@ func (m *MockDBRepo) GetOptionRequests(ctx context.Context) (model.OptionRequest
 func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
+}
+
+// MockSetAttributeProducer is a mock of SetAttributeProducer interface.
+type MockSetAttributeProducer struct {
+	ctrl     *gomock.Controller
+	recorder *MockSetAttributeProducerMockRecorder
+}
+
+// MockSetAttributeProducerMockRecorder is the mock recorder for MockSetAttributeProducer.
+type MockSetAttributeProducerMockRecorder struct {
+	mock *MockSetAttributeProducer
+}
+
+// NewMockSetAttributeProducer creates a new mock instance.
+func NewMockSetAttributeProducer(ctrl *gomock.Controller) *MockSetAttributeProducer {
+	mock := &MockSetAttributeProducer{ctrl: ctrl}
+	mock.recorder = &MockSetAttributeProducerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSetAttributeProducer) EXPECT() *MockSetAttributeProducerMockRecorder {
+	return m.recorder
+}
+
+// ProduceMessage mocks base method.
+func (m *MockSetAttributeProducer) ProduceMessage(message interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProduceMessage", message)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProduceMessage indicates an expected call of ProduceMessage.
+func (mr *MockSetAttributeProducerMockRecorder) ProduceMessage(message interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceMessage", reflect.TypeOf((*MockSetAttributeProducer)(nil).ProduceMessage), message)
 }
