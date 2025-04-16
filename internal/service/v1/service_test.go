@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 	"testing"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	logger_lib "github.com/s21platform/logger-lib"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
