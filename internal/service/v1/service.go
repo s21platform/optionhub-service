@@ -37,7 +37,7 @@ func (s *Service) GetAttributeValues(ctx context.Context, in *optionhub.GetAttri
 		return nil, status.Errorf(codes.Internal, "failed to get attribute values: %v", err)
 	}
 
-	return &optionhub.GetAttributeValuesOut{OptionList: values.ToDTO()}, nil
+	return &optionhub.GetAttributeValuesOut{OptionList: values.FromDTO()}, nil
 }
 
 func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*optionhub.GetOptionRequestsOut, error) {

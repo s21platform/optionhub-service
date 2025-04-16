@@ -12,6 +12,7 @@ type Attribute struct {
 }
 
 type AttributeValue struct {
+	Id          int64  `db:"id"`
 	AttributeId int64  `db:"attribute_id"`
 	Value       string `db:"value"`
 	ParentId    *int64 `db:"parent_id"`
@@ -45,9 +46,9 @@ func (a AttributeValueList) FromDTO() []*optionhubproto_v1.Option {
 
 	for _, root := range roots {
 		rootNode := optionhubproto_v1.Option{
-			OptionId:    root.AttributeId,
+			OptionId:    root.Id,
 			OptionValue: root.Value,
-			Children:    buildTree(root.AttributeId, childrenMap),
+			Children:    buildTree(root.Id, childrenMap),
 		}
 		result = append(result, &rootNode)
 	}
@@ -59,9 +60,9 @@ func buildTree(parentId int64, children map[int64]AttributeValueList) []*optionh
 	result := make([]*optionhubproto_v1.Option, 0)
 	for _, child := range children[parentId] {
 		node := optionhubproto_v1.Option{
-			OptionId:    child.AttributeId,
+			OptionId:    child.Id,
 			OptionValue: child.Value,
-			Children:    buildTree(child.AttributeId, children),
+			Children:    buildTree(child.Id, children),
 		}
 		result = append(result, &node)
 	}
