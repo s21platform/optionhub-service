@@ -162,6 +162,30 @@ func (r *Repository) GetOptionRequests(ctx context.Context) (model.OptionRequest
 	return res, nil
 }
 
+func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
+	queryTmp := sq.Insert("attribute_values").
+		Columns("attribute_id", "value").
+		Values(in.AttributeId, in.Value)
+
+	if in.ParentId != nil {
+		queryTmp = queryTmp.Columns("parent_id").Values(*in.ParentId)
+	}
+
+	sqlQuery, args, err := queryTmp.PlaceholderFormat(sq.Dollar).ToSql()
+
+	if err != nil {
+		return fmt.Errorf("failed to build SQL query: %v", err)
+	}
+
+	_, err = r.connection.ExecContext(ctx, sqlQuery, args...)
+
+	if err != nil {
+		return fmt.Errorf("failed to add attribute into postgres: %v", err)
+	}
+
+	return nil
+}
+
 func (r *Repository) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
 	var values model.AttributeValueList
 

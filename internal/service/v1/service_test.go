@@ -1,8 +1,9 @@
-package service_test
+package service
 
 import (
 	"context"
 	"errors"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 	"testing"
 	"time"
 
@@ -17,7 +18,6 @@ import (
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
-	"github.com/s21platform/optionhub-service/internal/service/v1"
 )
 
 func TestService_GetOptionRequests(t *testing.T) {
@@ -30,7 +30,8 @@ func TestService_GetOptionRequests(t *testing.T) {
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
-	mockRepo := service.NewMockDBRepo(ctrl)
+	mockRepo := NewMockDBRepo(ctrl)
+	kafkaProducer := NewMockSetAttributeProducer(ctrl)
 
 	t.Run("get_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
@@ -50,7 +51,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
 		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{ID: 100, Name: "Linux"}}, nil)
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo, kafkaProducer)
 		result, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		assert.NoError(t, err)
@@ -68,7 +69,7 @@ func TestService_GetOptionRequests(t *testing.T) {
 
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(nil, errors.New("test error"))
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo, kafkaProducer)
 		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
@@ -91,12 +92,52 @@ func TestService_GetOptionRequests(t *testing.T) {
 		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
 		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return(nil, errors.New("test error"))
 
-		s := service.NewService(mockRepo)
+		s := NewService(mockRepo, kafkaProducer)
 		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, st.Code())
 		assert.Contains(t, st.Message(), "failed to get attribute value by id")
+	})
+}
+
+func TestService_SetAttribute(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+	mockRepo := NewMockDBRepo(ctrl)
+	mockProducer := NewMockSetAttributeProducer(ctrl)
+
+	t.Run("set_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(nil)
+		mockProducer.EXPECT().ProduceMessage(gomock.Any()).Return(nil)
+
+		s := NewService(mockRepo, mockProducer)
+		_, err := s.AddAttributeValue(ctx, &optionhubproto_v1.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("set_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
+		mockLogger.EXPECT().Error("failed to add new attribute: test error")
+
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(errors.New("test error"))
+
+		s := NewService(mockRepo, mockProducer)
+		_, err := s.AddAttributeValue(ctx, &optionhubproto_v1.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Aborted, st.Code())
+		assert.Contains(t, st.Message(), "failed to add new attribute")
 	})
 }

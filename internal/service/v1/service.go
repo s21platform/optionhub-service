@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
+	new_attribute "github.com/s21platform/optionhub-proto/optionhub/set_new_attribute"
 	optionhub "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
@@ -18,11 +19,12 @@ import (
 
 type Service struct {
 	optionhub.UnimplementedOptionhubServiceV1Server
-	dbR DBRepo
+	dbR      DBRepo
+	setAttrP SetAttributeProducer
 }
 
-func NewService(repo DBRepo) *Service {
-	return &Service{dbR: repo}
+func NewService(repo DBRepo, setAttributeProducer SetAttributeProducer) *Service {
+	return &Service{dbR: repo, setAttrP: setAttributeProducer}
 }
 
 func (s *Service) GetAttributeValues(ctx context.Context, in *optionhub.GetAttributeValuesIn) (*optionhub.GetAttributeValuesOut, error) {
@@ -66,4 +68,33 @@ func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*opt
 	return &optionhub.GetOptionRequestsOut{
 		OptionRequestItem: resp,
 	}, nil
+}
+
+func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttributeValueIn) (*emptypb.Empty, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("SetAttributeTopic")
+
+	var attributeObj model.AttributeValue
+
+	attributeObj, err := attributeObj.ToDTO(in)
+
+	if err != nil {
+		return &emptypb.Empty{}, fmt.Errorf("failed to convert grpc message to dto: %v", err)
+	}
+
+	err = s.dbR.AddAttributeValue(ctx, attributeObj)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
+	}
+
+	message := &new_attribute.SetNewAttribute{AttributeId: in.AttributeId}
+
+	err = s.setAttrP.ProduceMessage(message)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
+	}
+
+	return &emptypb.Empty{}, nil
 }
