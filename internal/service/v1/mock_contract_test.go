@@ -79,6 +79,21 @@ func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
 }
 
+// GetValuesByAttributeId mocks base method.
+func (m *MockDBRepo) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetValuesByAttributeId", ctx, attributeId)
+	ret0, _ := ret[0].(model.AttributeValueList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetValuesByAttributeId indicates an expected call of GetValuesByAttributeId.
+func (mr *MockDBRepoMockRecorder) GetValuesByAttributeId(ctx, attributeId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValuesByAttributeId", reflect.TypeOf((*MockDBRepo)(nil).GetValuesByAttributeId), ctx, attributeId)
+}
+
 // MockSetAttributeProducer is a mock of SetAttributeProducer interface.
 type MockSetAttributeProducer struct {
 	ctrl     *gomock.Controller

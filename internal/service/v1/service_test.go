@@ -3,7 +3,8 @@ package service
 import (
 	"context"
 	"errors"
-	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -15,10 +16,94 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	logger_lib "github.com/s21platform/logger-lib"
+	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/utils"
 )
+
+func TestService_GetAttributeValues(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+	mockRepo := NewMockDBRepo(ctrl)
+	kafkaProducer := NewMockSetAttributeProducer(ctrl)
+
+	t.Run("get_attribute_values_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
+
+		var attributeId int64 = 5
+		expectedDbRes := model.AttributeValueList{
+			{
+				Id:       1,
+				Value:    "Россия",
+				ParentId: nil,
+			},
+			{
+				Id:       2,
+				Value:    "Москва",
+				ParentId: utils.TransformToPtr(int64(1)),
+			},
+			{
+				Id:       3,
+				Value:    "Курьяново",
+				ParentId: utils.TransformToPtr(int64(2)),
+			},
+		}
+
+		option3 := &optionhubproto_v1.Option{
+			OptionId:    3,
+			OptionValue: "Курьяново",
+			Children:    []*optionhubproto_v1.Option{},
+		}
+
+		option2 := &optionhubproto_v1.Option{
+			OptionId:    2,
+			OptionValue: "Москва",
+			Children:    []*optionhubproto_v1.Option{option3},
+		}
+
+		option1 := &optionhubproto_v1.Option{
+			OptionId:    1,
+			OptionValue: "Россия",
+			Children:    []*optionhubproto_v1.Option{option2},
+		}
+
+		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(expectedDbRes, nil)
+
+		s := NewService(mockRepo, kafkaProducer)
+		result, err := s.GetAttributeValues(ctx, &optionhubproto_v1.GetAttributeValuesIn{AttributeId: attributeId})
+
+		assert.NoError(t, err)
+		assert.True(t, reflect.DeepEqual(option1, result.OptionList[0]))
+	})
+
+	t.Run("get_attribute_values_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
+
+		expErr := errors.New("cannot get data from db")
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get attribute values: %v", expErr))
+
+		var attributeId int64 = 5
+
+		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(nil, expErr)
+
+		s := NewService(mockRepo, kafkaProducer)
+		_, err := s.GetAttributeValues(ctx, &optionhubproto_v1.GetAttributeValuesIn{AttributeId: attributeId})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to get attribute values")
+	})
+}
 
 func TestService_GetOptionRequests(t *testing.T) {
 	t.Parallel()

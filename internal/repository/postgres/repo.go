@@ -10,8 +10,13 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // Импорт драйвера PostgreSQL
+
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
+)
+
+const (
+	attributeValuesTable = "attribute_values"
 )
 
 type Repository struct {
@@ -179,4 +184,28 @@ func (r *Repository) AddAttributeValue(ctx context.Context, in model.AttributeVa
 	}
 
 	return nil
+}
+
+func (r *Repository) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
+	var values model.AttributeValueList
+
+	query, args, err := sq.
+		Select(
+			"id",
+			"value",
+			"parent_id",
+		).
+		From(attributeValuesTable).
+		Where(sq.Eq{"attribute_id": attributeId}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %v", err)
+	}
+
+	err = r.connection.SelectContext(ctx, &values, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %v", err)
+	}
+	return values, nil
 }
