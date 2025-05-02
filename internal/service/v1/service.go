@@ -27,6 +27,19 @@ func NewService(repo DBRepo, setAttributeProducer SetAttributeProducer) *Service
 	return &Service{dbR: repo, setAttrP: setAttributeProducer}
 }
 
+func (s *Service) GetAttributeValues(ctx context.Context, in *optionhub.GetAttributeValuesIn) (*optionhub.GetAttributeValuesOut, error) {
+	logger := logger_lib.FromContext(ctx, config.KeyLogger)
+	logger.AddFuncName("GetAttributeValues")
+
+	values, err := s.dbR.GetValuesByAttributeId(ctx, in.AttributeId)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to get attribute values: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get attribute values: %v", err)
+	}
+
+	return &optionhub.GetAttributeValuesOut{OptionList: values.FromDTO()}, nil
+}
+
 func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*optionhub.GetOptionRequestsOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
 	logger.AddFuncName("GetOptionRequests")
