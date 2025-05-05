@@ -15,5 +15,5 @@ type DBRepo interface {
 }
 
 type SetAttributeProducer interface {
-	ProduceMessage(message interface{}) error
+	ProduceMessage(ctx context.Context, message any, key any) error
 }
