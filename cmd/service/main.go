@@ -34,7 +34,15 @@ func main() {
 	}
 	defer metrics.Disconnect()
 
-	producerSetAttribute := kafka_lib.NewProducer(cfg.Kafka.Host, cfg.Kafka.SetAttributeTopic)
+	kafkaConfig := kafka_lib.DefaultProducerConfig(cfg.Kafka.Host, cfg.Kafka.Port, cfg.Kafka.SetAttributeTopic)
+
+	producerSetAttribute := kafka_lib.NewProducer(kafkaConfig)
+	defer func(producerSetAttribute *kafka_lib.KafkaProducer) {
+		err := producerSetAttribute.Close()
+		if err != nil {
+			logger.Error(fmt.Sprintf("failed to close producer: %v", err))
+		}
+	}(producerSetAttribute)
 
 	optionhubService := service.NewService(dbRepo)
 	optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)

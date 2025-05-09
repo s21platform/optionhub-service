@@ -43,7 +43,8 @@ type Platform struct {
 }
 
 type Kafka struct {
-	Host              string `env:"KAFKA_SERVER"`
+	Host              string `env:"KAFKA_HOST"`
+	Port              string `env:"KAFKA_PORT"`
 	SetAttributeTopic string `env:"STAFF_SET_ATTRIBUTE"`
 }
 

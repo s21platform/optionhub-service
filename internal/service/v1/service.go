@@ -90,7 +90,7 @@ func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttrib
 
 	message := &new_attribute.SetNewAttribute{AttributeId: in.AttributeId}
 
-	err = s.setAttrP.ProduceMessage(message)
+	err = s.setAttrP.ProduceMessage(ctx, message, "set_new_attribute")
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
 		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)

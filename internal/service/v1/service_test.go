@@ -203,7 +203,7 @@ func TestService_SetAttribute(t *testing.T) {
 	t.Run("set_ok", func(t *testing.T) {
 		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
 		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(nil)
-		mockProducer.EXPECT().ProduceMessage(gomock.Any()).Return(nil)
+		mockProducer.EXPECT().ProduceMessage(ctx, gomock.Any(), gomock.Any()).Return(nil)
 
 		s := NewService(mockRepo, mockProducer)
 		_, err := s.AddAttributeValue(ctx, &optionhubproto_v1.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
