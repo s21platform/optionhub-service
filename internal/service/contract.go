@@ -8,9 +8,12 @@ import (
 )
 
 type DBRepo interface {
-	AddOS(ctx context.Context, name, uuid string) (int64, error)
-	GetOsByID(ctx context.Context, id int64) (string, error)
-	GetOsBySearchName(ctx context.Context, name string) (model.CategoryItemList, error)
-	GetOsPreview(ctx context.Context) (model.CategoryItemList, error)
-	GetAllOs() (model.CategoryItemList, error)
+	GetOptionRequests(ctx context.Context) (model.OptionRequestList, error)
+	GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error)
+	GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error)
+	AddAttributeValue(ctx context.Context, in model.AttributeValue) error
+}
+
+type SetAttributeProducer interface {
+	ProduceMessage(ctx context.Context, message any, key any) error
 }

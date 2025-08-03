@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	optionhub "github.com/s21platform/optionhub-proto/optionhub/v1"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

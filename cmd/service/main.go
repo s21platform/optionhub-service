@@ -10,14 +10,12 @@ import (
 	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
 	"github.com/s21platform/metrics-lib/pkg"
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
-	optionhubprotov1 "github.com/s21platform/optionhub-proto/optionhub/v1"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/infra"
 	"github.com/s21platform/optionhub-service/internal/repository/postgres"
 	"github.com/s21platform/optionhub-service/internal/service"
-	servicev1 "github.com/s21platform/optionhub-service/internal/service/v1"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
 )
 
 func main() {
@@ -44,8 +42,7 @@ func main() {
 		}
 	}(producerSetAttribute)
 
-	optionhubService := service.NewService(dbRepo)
-	optionhubServicev1 := servicev1.NewService(dbRepo, producerSetAttribute)
+	optionhubService := service.NewService(dbRepo, producerSetAttribute)
 
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -54,8 +51,8 @@ func main() {
 			infra.Logger(logger),
 		),
 	)
-	optionhubproto.RegisterOptionhubServiceServer(s, optionhubService)
-	optionhubprotov1.RegisterOptionhubServiceV1Server(s, optionhubServicev1)
+
+	optionhub.RegisterOptionhubServiceServer(s, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {

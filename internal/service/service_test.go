@@ -3,266 +3,226 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	logger_lib "github.com/s21platform/logger-lib"
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
+	"github.com/s21platform/optionhub-service/utils"
 )
 
-func TestServer_AddOS(t *testing.T) {
+func TestService_GetAttributeValues(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	uuid := "test-uuid"
 	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyUUID, uuid)
 	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
 
 	mockRepo := NewMockDBRepo(ctrl)
+	kafkaProducer := NewMockSetAttributeProducer(ctrl)
 
-	t.Run("add_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("AddOs")
-		osName := "ubuntu"
+	t.Run("get_attribute_values_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
 
-		var expectedID int64 = 1
+		var attributeId int64 = 5
+		expectedDbRes := model.AttributeValueList{
+			{
+				Id:       1,
+				Value:    "Россия",
+				ParentId: nil,
+			},
+			{
+				Id:       2,
+				Value:    "Москва",
+				ParentId: utils.TransformToPtr(int64(1)),
+			},
+			{
+				Id:       3,
+				Value:    "Курьяново",
+				ParentId: utils.TransformToPtr(int64(2)),
+			},
+		}
 
-		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedID, nil)
+		option3 := &optionhub.Option{
+			OptionId:    3,
+			OptionValue: "Курьяново",
+			Children:    []*optionhub.Option{},
+		}
 
-		s := NewService(mockRepo)
-		id, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
+		option2 := &optionhub.Option{
+			OptionId:    2,
+			OptionValue: "Москва",
+			Children:    []*optionhub.Option{option3},
+		}
+
+		option1 := &optionhub.Option{
+			OptionId:    1,
+			OptionValue: "Россия",
+			Children:    []*optionhub.Option{option2},
+		}
+
+		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(expectedDbRes, nil)
+
+		s := NewService(mockRepo, kafkaProducer)
+		result, err := s.GetAttributeValues(ctx, &optionhub.GetAttributeValuesIn{AttributeId: attributeId})
+
 		assert.NoError(t, err)
-		assert.Equal(t, id, &optionhubproto.AddOut{Id: expectedID, Value: osName})
+		assert.True(t, reflect.DeepEqual(option1, result.OptionList[0]))
 	})
 
-	t.Run("add_no_uuid", func(t *testing.T) {
-		ctx := context.Background()
-		mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-		ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+	t.Run("get_attribute_values_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
 
-		mockLogger.EXPECT().AddFuncName("AddOs")
-		mockLogger.EXPECT().Error("failed to find uuid")
+		expErr := errors.New("cannot get data from db")
+		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get attribute values: %v", expErr))
 
-		osName := "macOS"
+		var attributeId int64 = 5
 
-		s := NewService(mockRepo)
+		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(nil, expErr)
 
-		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
+		s := NewService(mockRepo, kafkaProducer)
+		_, err := s.GetAttributeValues(ctx, &optionhub.GetAttributeValuesIn{AttributeId: attributeId})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
-		assert.Equal(t, codes.Unauthenticated, st.Code())
-		assert.Contains(t, st.Message(), "failed to find uuid")
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to get attribute values")
+	})
+}
+
+func TestService_GetOptionRequests(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+	mockRepo := NewMockDBRepo(ctrl)
+	kafkaProducer := NewMockSetAttributeProducer(ctrl)
+
+	t.Run("get_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
+
+		now := time.Now()
+		expectedRequests := model.OptionRequestList{
+			{
+				ID:             1,
+				AttributeID:    100,
+				AttributeValue: "Linux",
+				Value:          "Ubuntu",
+				UserUuid:       "test-uuid",
+				CreatedAt:      now,
+			},
+		}
+
+		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
+		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{ID: 100, Name: "Linux"}}, nil)
+
+		s := NewService(mockRepo, kafkaProducer)
+		result, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
+
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), result.OptionRequestItem[0].OptionRequestId)
+		assert.Equal(t, int64(100), result.OptionRequestItem[0].AttributeId)
+		assert.Equal(t, "Linux", result.OptionRequestItem[0].AttributeValue)
+		assert.Equal(t, "Ubuntu", result.OptionRequestItem[0].OptionRequestValue)
+		assert.Equal(t, "test-uuid", result.OptionRequestItem[0].UserUuid)
+		assert.Equal(t, timestamppb.New(now), result.OptionRequestItem[0].CreatedAt)
 	})
 
-	t.Run("add_err", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("AddOs")
-		mockLogger.EXPECT().Error("failed to add new os, err: insert err")
+	t.Run("get_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
+		mockLogger.EXPECT().Error("failed to get option requests: test error")
 
-		osName := "windows"
+		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(nil, errors.New("test error"))
 
-		var expectedID int64
+		s := NewService(mockRepo, kafkaProducer)
+		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
 
-		expectedErr := errors.New("insert err")
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to get option requests")
+	})
 
-		mockRepo.EXPECT().AddOS(gomock.Any(), osName, uuid).Return(expectedID, expectedErr)
+	t.Run("get_attributes_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
+		mockLogger.EXPECT().Error("failed to get attribute value by id: test error")
 
-		s := NewService(mockRepo)
-		_, err := s.AddOs(ctx, &optionhubproto.AddIn{Value: osName})
+		expectedRequests := model.OptionRequestList{
+			{
+				ID:          1,
+				AttributeID: 100,
+			},
+		}
+
+		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
+		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return(nil, errors.New("test error"))
+
+		s := NewService(mockRepo, kafkaProducer)
+		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
+
+		st, ok := status.FromError(err)
+		assert.True(t, ok)
+		assert.Equal(t, codes.Internal, st.Code())
+		assert.Contains(t, st.Message(), "failed to get attribute value by id")
+	})
+}
+
+func TestService_SetAttribute(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
+	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+
+	mockRepo := NewMockDBRepo(ctrl)
+	mockProducer := NewMockSetAttributeProducer(ctrl)
+
+	t.Run("set_ok", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(nil)
+		mockProducer.EXPECT().ProduceMessage(ctx, gomock.Any(), gomock.Any()).Return(nil)
+
+		s := NewService(mockRepo, mockProducer)
+		_, err := s.AddAttributeValue(ctx, &optionhub.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("set_error", func(t *testing.T) {
+		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
+		mockLogger.EXPECT().Error("failed to add new attribute: test error")
+
+		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(errors.New("test error"))
+
+		s := NewService(mockRepo, mockProducer)
+		_, err := s.AddAttributeValue(ctx, &optionhub.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
 
 		st, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Aborted, st.Code())
-		assert.Contains(t, st.Message(), "insert err")
-	})
-}
-
-func TestServer_GetOsByID(t *testing.T) {
-	t.Parallel()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	ctx := context.Background()
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-	mockRepo := NewMockDBRepo(ctrl)
-
-	t.Run("get_by_id_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOsByID")
-		expectedOsName := "ubuntu"
-
-		var id int64 = 3
-
-		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return(expectedOsName, nil)
-
-		s := NewService(mockRepo)
-		osName, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
-		assert.NoError(t, err)
-		assert.Equal(t, osName, &optionhubproto.GetByIdOut{Id: id, Value: expectedOsName})
-	})
-
-	t.Run("get_by_id_err", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOsByID")
-		mockLogger.EXPECT().Error("failed to get os by id, err: get err")
-
-		var id int64 = 4
-
-		expectedErr := errors.New("get err")
-
-		mockRepo.EXPECT().GetOsByID(gomock.Any(), id).Return("", expectedErr)
-
-		s := NewService(mockRepo)
-		_, err := s.GetOsByID(ctx, &optionhubproto.GetByIdIn{Id: id})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.NotFound, st.Code())
-		assert.Contains(t, st.Message(), "get err")
-	})
-}
-
-func TestServer_GetOsBySearchName(t *testing.T) {
-	t.Parallel()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	ctx := context.Background()
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-	mockRepo := NewMockDBRepo(ctrl)
-
-	t.Run("get_by_name_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
-
-		expectedNames := []model.CategoryItem{
-			{ID: 1, Label: "ubuntu"},
-			{ID: 2, Label: "ubuntuu"},
-			{ID: 5, Label: "ubububu"},
-		}
-		expectedRes := &optionhubproto.GetByNameOut{
-			Options: []*optionhubproto.Record{
-				{Id: 1, Label: "ubuntu"},
-				{Id: 2, Label: "ubuntuu"},
-				{Id: 5, Label: "ubububu"},
-			},
-		}
-		search := "ub"
-
-		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(expectedNames, nil)
-
-		s := NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
-		assert.NoError(t, err)
-		assert.Equal(t, osNames, expectedRes)
-	})
-
-	t.Run("get_by_name_too_less_symbol", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
-
-		search := "w"
-
-		expectedPreview := []model.CategoryItem{
-			{ID: 1, Label: "windows"},
-			{ID: 2, Label: "wsl"},
-		}
-		expectedRes := &optionhubproto.GetByNameOut{
-			Options: []*optionhubproto.Record{
-				{Id: 1, Label: "windows"},
-				{Id: 2, Label: "wsl"},
-			},
-		}
-
-		mockRepo.EXPECT().GetOsPreview(gomock.Any()).Return(expectedPreview, nil)
-
-		s := NewService(mockRepo)
-		osNames, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
-		assert.NoError(t, err)
-		assert.Equal(t, osNames, expectedRes)
-	})
-
-	t.Run("get_by_name_err", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOsBySearchName")
-		mockLogger.EXPECT().Error("failed to get os by name, err: db err")
-
-		search := "wi"
-		expectedErr := errors.New("db err")
-
-		mockRepo.EXPECT().GetOsBySearchName(gomock.Any(), search).Return(nil, expectedErr)
-
-		s := NewService(mockRepo)
-		_, err := s.GetOsBySearchName(ctx, &optionhubproto.GetByNameIn{Name: search})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.NotFound, st.Code())
-		assert.Contains(t, st.Message(), "db err")
-	})
-}
-
-func TestServer_GetAllOs(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-	mockRepo := NewMockDBRepo(ctrl)
-
-	t.Run("get_all_os_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetAllOs")
-
-		expectedNames := []model.CategoryItem{
-			{ID: 1, Label: "ubuntu"},
-			{ID: 2, Label: "Mac OS"},
-			{ID: 5, Label: "Windows"},
-		}
-		expectedRes := &optionhubproto.GetAllOut{
-			Values: []*optionhubproto.Record{
-				{Id: 1, Label: "ubuntu"},
-				{Id: 2, Label: "Mac OS"},
-				{Id: 5, Label: "Windows"},
-			},
-		}
-
-		mockRepo.EXPECT().GetAllOs().Return(expectedNames, nil)
-
-		s := NewService(mockRepo)
-		osNames, err := s.GetAllOs(ctx, &optionhubproto.EmptyOptionhub{})
-		assert.NoError(t, err)
-		assert.Equal(t, osNames, expectedRes)
-	})
-
-	t.Run("get_all_os_err", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetAllOs")
-		mockLogger.EXPECT().Error("failed to get all os list: db err")
-
-		expectedErr := errors.New("db err")
-
-		mockRepo.EXPECT().GetAllOs().Return(nil, expectedErr)
-
-		s := NewService(mockRepo)
-		_, err := s.GetAllOs(ctx, &optionhubproto.EmptyOptionhub{})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.NotFound, st.Code())
-		assert.Contains(t, st.Message(), "db err")
+		assert.Contains(t, st.Message(), "failed to add new attribute")
 	})
 }

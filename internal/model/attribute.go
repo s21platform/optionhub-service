@@ -3,7 +3,7 @@ package model
 import (
 	"github.com/samber/lo"
 
-	optionhubproto_v1 "github.com/s21platform/optionhub-proto/optionhub/v1"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
 )
 
 type Attribute struct {
@@ -18,7 +18,7 @@ type AttributeValue struct {
 	ParentId    *int64 `db:"parent_id"`
 }
 
-func (a *AttributeValue) ToDTO(in *optionhubproto_v1.AddAttributeValueIn) (AttributeValue, error) {
+func (a *AttributeValue) ToDTO(in *optionhub.AddAttributeValueIn) (AttributeValue, error) {
 	result := AttributeValue{
 		AttributeId: in.AttributeId,
 		Value:       in.Value,
@@ -29,8 +29,8 @@ func (a *AttributeValue) ToDTO(in *optionhubproto_v1.AddAttributeValueIn) (Attri
 
 type AttributeValueList []AttributeValue
 
-func (a AttributeValueList) FromDTO() []*optionhubproto_v1.Option {
-	result := make([]*optionhubproto_v1.Option, 0)
+func (a AttributeValueList) FromDTO() []*optionhub.Option {
+	result := make([]*optionhub.Option, 0)
 
 	roots := lo.Filter(a, func(val AttributeValue, _ int) bool {
 		return val.ParentId == nil
@@ -45,7 +45,7 @@ func (a AttributeValueList) FromDTO() []*optionhubproto_v1.Option {
 	}
 
 	for _, root := range roots {
-		rootNode := optionhubproto_v1.Option{
+		rootNode := optionhub.Option{
 			OptionId:    root.Id,
 			OptionValue: root.Value,
 			Children:    buildTree(root.Id, childrenMap),
@@ -56,10 +56,10 @@ func (a AttributeValueList) FromDTO() []*optionhubproto_v1.Option {
 	return result
 }
 
-func buildTree(parentId int64, children map[int64]AttributeValueList) []*optionhubproto_v1.Option {
-	result := make([]*optionhubproto_v1.Option, 0)
+func buildTree(parentId int64, children map[int64]AttributeValueList) []*optionhub.Option {
+	result := make([]*optionhub.Option, 0)
 	for _, child := range children[parentId] {
-		node := optionhubproto_v1.Option{
+		node := optionhub.Option{
 			OptionId:    child.Id,
 			OptionValue: child.Value,
 			Children:    buildTree(child.Id, children),

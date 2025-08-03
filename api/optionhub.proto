@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = "pkg/optionhub";
+
+import  "google/protobuf/empty.proto";
+import  "google/protobuf/timestamp.proto";
+
+service OptionhubService {
+  rpc AddAttributeValue (AddAttributeValueIn) returns (google.protobuf.Empty){};
+  rpc GetOptionRequests (google.protobuf.Empty) returns (GetOptionRequestsOut){};
+  rpc GetAttributeValues (GetAttributeValuesIn) returns (GetAttributeValuesOut){};
+}
+
+message Option {
+  //id of the attribute option
+  int64 option_id = 1;
+  //value of the attribute option
+  string option_value = 2;
+  //option that inherits from this option
+  repeated Option children = 3;
+}
+
+message GetAttributeValuesIn {
+  //id of the attribute
+  int64 attribute_id = 1;
+}
+
+message GetAttributeValuesOut {
+  //attribute values trees
+  repeated Option option_list = 1;
+}
+
+// message request
+message AddAttributeValueIn  {
+  // id of the row in the db
+  int64 attribute_id = 1;
+  string value = 2;
+  optional int64 parent_id = 3;
+}
+
+// Describe
+message OptionRequestItem {
+  // id of requested note in db
+  int64 option_request_id = 1;
+  // value of requested option
+  string option_request_value = 2;
+  // time of create note
+  google.protobuf.Timestamp created_at = 3;
+  // value of attribute where option requested in
+  string attribute_value = 4;
+  // id of requested attribute
+  int64 attribute_id = 5;
+  // user_uuid for ban
+  string user_uuid = 6;
+}
+
+// message response with requested options
+message GetOptionRequestsOut {
+  // array of items
+  repeated OptionRequestItem optionRequestItem= 1;
+}
+
+
+// ------ KAFKA messages -------
+
+message SetNewAttribute  {
+  // id of the row in the db
+  int64 attribute_id = 1;
+}

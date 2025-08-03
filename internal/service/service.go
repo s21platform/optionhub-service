@@ -4,93 +4,96 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
-	optionhubproto "github.com/s21platform/optionhub-proto/optionhub-proto"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
 
 	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
 )
 
 type Service struct {
-	optionhubproto.UnimplementedOptionhubServiceServer
-	dbR DBRepo
+	optionhub.UnimplementedOptionhubServiceServer
+	dbR      DBRepo
+	setAttrP SetAttributeProducer
 }
 
-func NewService(repo DBRepo) *Service {
-	return &Service{dbR: repo}
+func NewService(repo DBRepo, setAttributeProducer SetAttributeProducer) *Service {
+	return &Service{dbR: repo, setAttrP: setAttributeProducer}
 }
 
-func (s *Service) GetOsByID(ctx context.Context, in *optionhubproto.GetByIdIn) (*optionhubproto.GetByIdOut, error) {
+func (s *Service) GetAttributeValues(ctx context.Context, in *optionhub.GetAttributeValuesIn) (*optionhub.GetAttributeValuesOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("GetOsByID")
+	logger.AddFuncName("GetAttributeValues")
 
-	os, err := s.dbR.GetOsByID(ctx, in.Id)
+	values, err := s.dbR.GetValuesByAttributeId(ctx, in.AttributeId)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get os by id, err: %v", err))
-		return nil, status.Errorf(codes.NotFound, "failed to get os by id, err: %v", err)
+		logger.Error(fmt.Sprintf("failed to get attribute values: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get attribute values: %v", err)
 	}
 
-	return &optionhubproto.GetByIdOut{Id: in.Id, Value: os}, nil
+	return &optionhub.GetAttributeValuesOut{OptionList: values.FromDTO()}, nil
 }
 
-func (s *Service) AddOs(ctx context.Context, in *optionhubproto.AddIn) (*optionhubproto.AddOut, error) {
+func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*optionhub.GetOptionRequestsOut, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("AddOs")
+	logger.AddFuncName("GetOptionRequests")
 
-	uuid, ok := ctx.Value(config.KeyUUID).(string)
-	if !ok {
-		logger.Error("failed to find uuid")
-		return nil, status.Errorf(codes.Unauthenticated, "failed to find uuid")
-	}
-
-	id, err := s.dbR.AddOS(ctx, in.Value, uuid)
+	requests, err := s.dbR.GetOptionRequests(ctx)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to add new os, err: %v", err))
-		return nil, status.Errorf(codes.Aborted, "failed to add new os, err: %v", err)
+		logger.Error(fmt.Sprintf("failed to get option requests: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get option requests: %v", err)
 	}
 
-	return &optionhubproto.AddOut{Id: id, Value: in.Value}, nil
-}
-
-func (s *Service) GetOsBySearchName(ctx context.Context, in *optionhubproto.GetByNameIn) (*optionhubproto.GetByNameOut, error) {
-	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("GetOsBySearchName")
-
-	var (
-		osList model.CategoryItemList
-		err    error
-	)
-
-	if len(in.Name) < 2 {
-		osList, err = s.dbR.GetOsPreview(ctx)
-	} else {
-		osList, err = s.dbR.GetOsBySearchName(ctx, in.Name)
-	}
-
+	attributes, err := s.dbR.GetAttributeValueById(ctx, lo.Map(requests, func(o model.OptionRequest, _ int) int64 { return o.AttributeID }))
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get os by name, err: %v", err))
-		return nil, status.Errorf(codes.NotFound, "failed to get os by name, err: %v", err)
+		logger.Error(fmt.Sprintf("failed to get attribute value by id: %v", err))
+		return nil, status.Errorf(codes.Internal, "failed to get attribute value by id: %v", err)
 	}
 
-	return &optionhubproto.GetByNameOut{
-		Options: osList.FromDTO(),
+	resp := requests.ToDTO()
+
+	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.ID })
+	lo.ForEach(resp, func(o *optionhub.OptionRequestItem, _ int) {
+		if attr, ok := attributeMap[o.AttributeId]; ok {
+			o.AttributeValue = attr.Name
+		}
+	})
+
+	return &optionhub.GetOptionRequestsOut{
+		OptionRequestItem: resp,
 	}, nil
 }
 
-func (s *Service) GetAllOs(ctx context.Context, _ *optionhubproto.EmptyOptionhub) (*optionhubproto.GetAllOut, error) {
+func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttributeValueIn) (*emptypb.Empty, error) {
 	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("GetAllOs")
+	logger.AddFuncName("SetAttributeTopic")
 
-	OSList, err := s.dbR.GetAllOs()
+	var attributeObj model.AttributeValue
+
+	attributeObj, err := attributeObj.ToDTO(in)
+
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get all os list: %v", err))
-		return nil, status.Errorf(codes.NotFound, "failed to get all os list: %v", err)
+		return &emptypb.Empty{}, fmt.Errorf("failed to convert grpc message to dto: %v", err)
 	}
 
-	return &optionhubproto.GetAllOut{
-		Values: OSList.FromDTO(),
-	}, nil
+	err = s.dbR.AddAttributeValue(ctx, attributeObj)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
+	}
+
+	message := &optionhub.SetNewAttribute{AttributeId: in.AttributeId}
+
+	err = s.setAttrP.ProduceMessage(ctx, message, "set_new_attribute")
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
+		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
+	}
+
+	return &emptypb.Empty{}, nil
 }
