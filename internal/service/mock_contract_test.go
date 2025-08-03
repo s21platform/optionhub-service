@@ -8,9 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	"github.com/s21platform/optionhub-service/internal/model"
-
 	gomock "github.com/golang/mock/gomock"
+	model "github.com/s21platform/optionhub-service/internal/model"
 )
 
 // MockDBRepo is a mock of DBRepo interface.
@@ -36,77 +35,98 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
-// AddOS mocks base method.
-func (m *MockDBRepo) AddOS(ctx context.Context, name, uuid string) (int64, error) {
+// AddAttributeValue mocks base method.
+func (m *MockDBRepo) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddOS", ctx, name, uuid)
-	ret0, _ := ret[0].(int64)
+	ret := m.ctrl.Call(m, "AddAttributeValue", ctx, in)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddAttributeValue indicates an expected call of AddAttributeValue.
+func (mr *MockDBRepoMockRecorder) AddAttributeValue(ctx, in interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAttributeValue", reflect.TypeOf((*MockDBRepo)(nil).AddAttributeValue), ctx, in)
+}
+
+// GetAttributeValueById mocks base method.
+func (m *MockDBRepo) GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAttributeValueById", ctx, ids)
+	ret0, _ := ret[0].([]model.Attribute)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// AddOS indicates an expected call of AddOS.
-func (mr *MockDBRepoMockRecorder) AddOS(ctx, name, uuid interface{}) *gomock.Call {
+// GetAttributeValueById indicates an expected call of GetAttributeValueById.
+func (mr *MockDBRepoMockRecorder) GetAttributeValueById(ctx, ids interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOS", reflect.TypeOf((*MockDBRepo)(nil).AddOS), ctx, name, uuid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAttributeValueById", reflect.TypeOf((*MockDBRepo)(nil).GetAttributeValueById), ctx, ids)
 }
 
-// GetAllOs mocks base method.
-func (m *MockDBRepo) GetAllOs() (model.CategoryItemList, error) {
+// GetOptionRequests mocks base method.
+func (m *MockDBRepo) GetOptionRequests(ctx context.Context) (model.OptionRequestList, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllOs")
-	ret0, _ := ret[0].(model.CategoryItemList)
+	ret := m.ctrl.Call(m, "GetOptionRequests", ctx)
+	ret0, _ := ret[0].(model.OptionRequestList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAllOs indicates an expected call of GetAllOs.
-func (mr *MockDBRepoMockRecorder) GetAllOs() *gomock.Call {
+// GetOptionRequests indicates an expected call of GetOptionRequests.
+func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllOs", reflect.TypeOf((*MockDBRepo)(nil).GetAllOs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
 }
 
-// GetOsByID mocks base method.
-func (m *MockDBRepo) GetOsByID(ctx context.Context, id int64) (string, error) {
+// GetValuesByAttributeId mocks base method.
+func (m *MockDBRepo) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOsByID", ctx, id)
-	ret0, _ := ret[0].(string)
+	ret := m.ctrl.Call(m, "GetValuesByAttributeId", ctx, attributeId)
+	ret0, _ := ret[0].(model.AttributeValueList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetOsByID indicates an expected call of GetOsByID.
-func (mr *MockDBRepoMockRecorder) GetOsByID(ctx, id interface{}) *gomock.Call {
+// GetValuesByAttributeId indicates an expected call of GetValuesByAttributeId.
+func (mr *MockDBRepoMockRecorder) GetValuesByAttributeId(ctx, attributeId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsByID", reflect.TypeOf((*MockDBRepo)(nil).GetOsByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValuesByAttributeId", reflect.TypeOf((*MockDBRepo)(nil).GetValuesByAttributeId), ctx, attributeId)
 }
 
-// GetOsBySearchName mocks base method.
-func (m *MockDBRepo) GetOsBySearchName(ctx context.Context, name string) (model.CategoryItemList, error) {
+// MockSetAttributeProducer is a mock of SetAttributeProducer interface.
+type MockSetAttributeProducer struct {
+	ctrl     *gomock.Controller
+	recorder *MockSetAttributeProducerMockRecorder
+}
+
+// MockSetAttributeProducerMockRecorder is the mock recorder for MockSetAttributeProducer.
+type MockSetAttributeProducerMockRecorder struct {
+	mock *MockSetAttributeProducer
+}
+
+// NewMockSetAttributeProducer creates a new mock instance.
+func NewMockSetAttributeProducer(ctrl *gomock.Controller) *MockSetAttributeProducer {
+	mock := &MockSetAttributeProducer{ctrl: ctrl}
+	mock.recorder = &MockSetAttributeProducerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSetAttributeProducer) EXPECT() *MockSetAttributeProducerMockRecorder {
+	return m.recorder
+}
+
+// ProduceMessage mocks base method.
+func (m *MockSetAttributeProducer) ProduceMessage(ctx context.Context, message, key any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOsBySearchName", ctx, name)
-	ret0, _ := ret[0].(model.CategoryItemList)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "ProduceMessage", ctx, message, key)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// GetOsBySearchName indicates an expected call of GetOsBySearchName.
-func (mr *MockDBRepoMockRecorder) GetOsBySearchName(ctx, name interface{}) *gomock.Call {
+// ProduceMessage indicates an expected call of ProduceMessage.
+func (mr *MockSetAttributeProducerMockRecorder) ProduceMessage(ctx, message, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsBySearchName", reflect.TypeOf((*MockDBRepo)(nil).GetOsBySearchName), ctx, name)
-}
-
-// GetOsPreview mocks base method.
-func (m *MockDBRepo) GetOsPreview(ctx context.Context) (model.CategoryItemList, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOsPreview", ctx)
-	ret0, _ := ret[0].(model.CategoryItemList)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetOsPreview indicates an expected call of GetOsPreview.
-func (mr *MockDBRepoMockRecorder) GetOsPreview(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOsPreview", reflect.TypeOf((*MockDBRepo)(nil).GetOsPreview), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceMessage", reflect.TypeOf((*MockSetAttributeProducer)(nil).ProduceMessage), ctx, message, key)
 }
