@@ -10,7 +10,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
-	new_attribute "github.com/s21platform/optionhub-proto/optionhub/set_new_attribute"
 	"github.com/s21platform/optionhub-service/pkg/optionhub"
 
 	"github.com/s21platform/optionhub-service/internal/config"
@@ -88,7 +87,7 @@ func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttrib
 		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
 	}
 
-	message := &new_attribute.SetNewAttribute{AttributeId: in.AttributeId}
+	message := &optionhub.SetNewAttribute{AttributeId: in.AttributeId}
 
 	err = s.setAttrP.ProduceMessage(ctx, message, "set_new_attribute")
 	if err != nil {

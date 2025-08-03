@@ -59,3 +59,11 @@ message GetOptionRequestsOut {
   // array of items
   repeated OptionRequestItem optionRequestItem= 1;
 }
+
+
+// ------ KAFKA messages -------
+
+message SetNewAttribute  {
+  // id of the row in the db
+  int64 attribute_id = 1;
+}

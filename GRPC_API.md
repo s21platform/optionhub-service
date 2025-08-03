@@ -10,6 +10,7 @@
     - [GetOptionRequestsOut](#-GetOptionRequestsOut)
     - [Option](#-Option)
     - [OptionRequestItem](#-OptionRequestItem)
+    - [SetNewAttribute](#-SetNewAttribute)
   
     - [OptionhubService](#-OptionhubService)
   
@@ -117,6 +118,21 @@ Describe
 | attribute_value | [string](#string) |  | value of attribute where option requested in |
 | attribute_id | [int64](#int64) |  | id of requested attribute |
 | user_uuid | [string](#string) |  | user_uuid for ban |
+
+
+
+
+
+
+<a name="-SetNewAttribute"></a>
+
+### SetNewAttribute
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| attribute_id | [int64](#int64) |  | id of the row in the db |
 
 
 
