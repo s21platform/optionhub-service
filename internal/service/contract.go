@@ -8,12 +8,6 @@ import (
 )
 
 type DBRepo interface {
-	GetOptionRequests(ctx context.Context) (model.OptionRequestList, error)
-	GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error)
-	GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error)
-	AddAttributeValue(ctx context.Context, in model.AttributeValue) error
-}
-
-type SetAttributeProducer interface {
-	ProduceMessage(ctx context.Context, message any, key any) error
+	GetAttributesByIds(ctx context.Context, attributesIds []int64) ([]model.Attribute, error)
+	GetEntityAttributesByIds(ctx context.Context, attributesEntityIds []int64) ([]model.EntityAttribute, error)
 }

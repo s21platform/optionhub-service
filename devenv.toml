@@ -1,0 +1,53 @@
+# Конфигурация локального окружения разработки
+
+[creds]
+enabled = true
+endpoint = "217.28.222.68:6001"
+
+# Перечисляются методы, креды которых необходимо подгрузить
+services = [
+    "metrics",
+    "logger"
+]
+
+[env]
+# ======= Креды изменяемые =======
+# Порты для разработки
+OPTIONHUB_SERVICE_PORT = "16100"
+REDIS_PORT = "16110"
+POSTGRES_PORT = "16111"
+
+# ======= Креды, которые стоит менять, если вы понимаете, что делаете :) =======
+POSTGRES_USER = "master"
+POSTGRES_DB = "master"
+POSTGRES_PASSWORD = "master"
+POSTGRES_HOST = "localhost"
+REDIS_HOST = "localhost"
+OPTIONHUB_SERVICE_NAME = "optionhub"
+
+[[env_maps]]
+from = "POSTGRES_USER"     # Исходная переменная
+to = "OPTIONHUB_SERVICE_POSTGRES_USER"  # Целевая переменная
+
+[[env_maps]]
+from = "POSTGRES_PASSWORD"
+to = "OPTIONHUB_SERVICE_POSTGRES_PASSWORD"
+
+[[env_maps]]
+from = "POSTGRES_DB"
+to = "OPTIONHUB_SERVICE_POSTGRES_DB"
+
+[[env_maps]]
+from = "POSTGRES_PORT"
+to = "OPTIONHUB_SERVICE_POSTGRES_PORT"
+
+[[env_maps]]
+from = "POSTGRES_HOST"
+to = "OPTIONHUB_SERVICE_POSTGRES_HOST"
+
+[[env_maps]]
+from = "REDIS_PORT"
+to = "OPTIONHUB_SERVICE_REDIS_PORT"
+
+[services.postgres]
+enabled = true

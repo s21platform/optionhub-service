@@ -12,7 +12,6 @@ type Config struct {
 	Metrics  Metrics
 	Logger   Logger
 	Platform Platform
-	Kafka    Kafka
 }
 
 type Service struct {
@@ -40,12 +39,6 @@ type Logger struct {
 
 type Platform struct {
 	Env string `env:"ENV"` // окружение (stage)
-}
-
-type Kafka struct {
-	Host              string `env:"KAFKA_HOST"`
-	Port              string `env:"KAFKA_PORT"`
-	SetAttributeTopic string `env:"STAFF_SET_ATTRIBUTE"`
 }
 
 func NewConfig() *Config {

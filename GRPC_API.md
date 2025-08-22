@@ -4,13 +4,13 @@
 ## Table of Contents
 
 - [api/optionhub.proto](#api_optionhub-proto)
-    - [AddAttributeValueIn](#-AddAttributeValueIn)
-    - [GetAttributeValuesIn](#-GetAttributeValuesIn)
-    - [GetAttributeValuesOut](#-GetAttributeValuesOut)
-    - [GetOptionRequestsOut](#-GetOptionRequestsOut)
-    - [Option](#-Option)
-    - [OptionRequestItem](#-OptionRequestItem)
-    - [SetNewAttribute](#-SetNewAttribute)
+    - [AttributeMetadata](#-AttributeMetadata)
+    - [GetAttributesMetadataIn](#-GetAttributesMetadataIn)
+    - [GetAttributesMetadataOut](#-GetAttributesMetadataOut)
+    - [GetAttributesMetadataOut.AttributesMetadataEntry](#-GetAttributesMetadataOut-AttributesMetadataEntry)
+  
+    - [AttributeType](#-AttributeType)
+    - [EntityType](#-EntityType)
   
     - [OptionhubService](#-OptionhubService)
   
@@ -25,120 +25,107 @@
 
 
 
-<a name="-AddAttributeValueIn"></a>
+<a name="-AttributeMetadata"></a>
 
-### AddAttributeValueIn
-message request
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| attribute_id | [int64](#int64) |  | id of the row in the db |
-| value | [string](#string) |  |  |
-| parent_id | [int64](#int64) | optional |  |
-
-
-
-
-
-
-<a name="-GetAttributeValuesIn"></a>
-
-### GetAttributeValuesIn
+### AttributeMetadata
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| attribute_id | [int64](#int64) |  | id of the attribute |
+| attribute_id | [int64](#int64) |  |  |
+| type | [AttributeType](#AttributeType) |  |  |
+| name | [string](#string) |  |  |
+| description | [string](#string) | optional |  |
+| allowed_operators | [bytes](#bytes) |  |  |
+| entity_attribute_id | [int64](#int64) |  |  |
+| entity_type | [EntityType](#EntityType) |  |  |
+| label | [string](#string) |  |  |
+| is_required | [bool](#bool) |  |  |
+| order_index | [int64](#int64) |  |  |
+| visibility_rules | [bytes](#bytes) |  |  |
 
 
 
 
 
 
-<a name="-GetAttributeValuesOut"></a>
+<a name="-GetAttributesMetadataIn"></a>
 
-### GetAttributeValuesOut
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| option_list | [Option](#Option) | repeated | attribute values trees |
-
-
-
-
-
-
-<a name="-GetOptionRequestsOut"></a>
-
-### GetOptionRequestsOut
-message response with requested options
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| optionRequestItem | [OptionRequestItem](#OptionRequestItem) | repeated | array of items |
-
-
-
-
-
-
-<a name="-Option"></a>
-
-### Option
+### GetAttributesMetadataIn
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| option_id | [int64](#int64) |  | id of the attribute option |
-| option_value | [string](#string) |  | value of the attribute option |
-| children | [Option](#Option) | repeated | option that inherits from this option |
+| entity_attribute_ids | [int64](#int64) | repeated |  |
 
 
 
 
 
 
-<a name="-OptionRequestItem"></a>
+<a name="-GetAttributesMetadataOut"></a>
 
-### OptionRequestItem
-Describe
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| option_request_id | [int64](#int64) |  | id of requested note in db |
-| option_request_value | [string](#string) |  | value of requested option |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | time of create note |
-| attribute_value | [string](#string) |  | value of attribute where option requested in |
-| attribute_id | [int64](#int64) |  | id of requested attribute |
-| user_uuid | [string](#string) |  | user_uuid for ban |
-
-
-
-
-
-
-<a name="-SetNewAttribute"></a>
-
-### SetNewAttribute
+### GetAttributesMetadataOut
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| attribute_id | [int64](#int64) |  | id of the row in the db |
+| attributes_metadata | [GetAttributesMetadataOut.AttributesMetadataEntry](#GetAttributesMetadataOut-AttributesMetadataEntry) | repeated |  |
+
+
+
+
+
+
+<a name="-GetAttributesMetadataOut-AttributesMetadataEntry"></a>
+
+### GetAttributesMetadataOut.AttributesMetadataEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [int64](#int64) |  |  |
+| value | [AttributeMetadata](#AttributeMetadata) |  |  |
 
 
 
 
 
  
+
+
+<a name="-AttributeType"></a>
+
+### AttributeType
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| STRING | 0 |  |
+| NUMBER | 1 |  |
+| DATE | 2 |  |
+| OPTION | 3 |  |
+| MULTISELECT | 4 |  |
+
+
+
+<a name="-EntityType"></a>
+
+### EntityType
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| USER | 0 |  |
+| SOCIETY | 1 |  |
+| EVENT | 2 |  |
+| COMMUNITY | 3 |  |
+| MATERIAL | 4 |  |
+
 
  
 
@@ -152,9 +139,7 @@ Describe
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| AddAttributeValue | [.AddAttributeValueIn](#AddAttributeValueIn) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| GetOptionRequests | [.google.protobuf.Empty](#google-protobuf-Empty) | [.GetOptionRequestsOut](#GetOptionRequestsOut) |  |
-| GetAttributeValues | [.GetAttributeValuesIn](#GetAttributeValuesIn) | [.GetAttributeValuesOut](#GetAttributeValuesOut) |  |
+| GetAttributesMetadata | [.GetAttributesMetadataIn](#GetAttributesMetadataIn) | [.GetAttributesMetadataOut](#GetAttributesMetadataOut) |  |
 
  
 

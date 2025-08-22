@@ -2,98 +2,79 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"errors"
 
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 
 	logger_lib "github.com/s21platform/logger-lib"
-	"github.com/s21platform/optionhub-service/pkg/optionhub"
 
-	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
+	"github.com/s21platform/optionhub-service/pkg/optionhub"
 )
 
 type Service struct {
 	optionhub.UnimplementedOptionhubServiceServer
-	dbR      DBRepo
-	setAttrP SetAttributeProducer
+	dbR DBRepo
 }
 
-func NewService(repo DBRepo, setAttributeProducer SetAttributeProducer) *Service {
-	return &Service{dbR: repo, setAttrP: setAttributeProducer}
+func NewService(repo DBRepo) *Service {
+	return &Service{dbR: repo}
 }
 
-func (s *Service) GetAttributeValues(ctx context.Context, in *optionhub.GetAttributeValuesIn) (*optionhub.GetAttributeValuesOut, error) {
-	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("GetAttributeValues")
-
-	values, err := s.dbR.GetValuesByAttributeId(ctx, in.AttributeId)
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get attribute values: %v", err))
-		return nil, status.Errorf(codes.Internal, "failed to get attribute values: %v", err)
+func (s *Service) GetAttributesMetadata(ctx context.Context, in *optionhub.GetAttributesMetadataIn) (*optionhub.GetAttributesMetadataOut, error) {
+	if len(in.EntityAttributeIds) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "entity attribute ids is required")
 	}
 
-	return &optionhub.GetAttributeValuesOut{OptionList: values.FromDTO()}, nil
-}
-
-func (s *Service) GetOptionRequests(ctx context.Context, _ *emptypb.Empty) (*optionhub.GetOptionRequestsOut, error) {
-	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("GetOptionRequests")
-
-	requests, err := s.dbR.GetOptionRequests(ctx)
+	entityAttributes, err := s.dbR.GetEntityAttributesByIds(ctx, in.EntityAttributeIds)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get option requests: %v", err))
-		return nil, status.Errorf(codes.Internal, "failed to get option requests: %v", err)
-	}
-
-	attributes, err := s.dbR.GetAttributeValueById(ctx, lo.Map(requests, func(o model.OptionRequest, _ int) int64 { return o.AttributeID }))
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to get attribute value by id: %v", err))
-		return nil, status.Errorf(codes.Internal, "failed to get attribute value by id: %v", err)
-	}
-
-	resp := requests.ToDTO()
-
-	attributeMap := lo.KeyBy(attributes, func(a model.Attribute) int64 { return a.ID })
-	lo.ForEach(resp, func(o *optionhub.OptionRequestItem, _ int) {
-		if attr, ok := attributeMap[o.AttributeId]; ok {
-			o.AttributeValue = attr.Name
+		logger_lib.Error(logger_lib.WithField(ctx, "error", err), "failed to get entity attributes")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "entity attributes not found")
 		}
+		return nil, status.Error(codes.Internal, "failed to get entity attributes")
+	}
+
+	attributeIds := lo.Map(entityAttributes, func(item model.EntityAttribute, index int) int64 {
+		return item.AttributeID
 	})
 
-	return &optionhub.GetOptionRequestsOut{
-		OptionRequestItem: resp,
+	attributes, err := s.dbR.GetAttributesByIds(ctx, attributeIds)
+	if err != nil {
+		logger_lib.Error(logger_lib.WithField(ctx, "error", err), "failed to get attributes")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "attributes not found")
+		}
+		return nil, status.Error(codes.Internal, "failed to get attributes")
+	}
+
+	attrMetaMap := make(map[int64]model.Attribute, len(attributes))
+	for _, meta := range attributes {
+		attrMetaMap[meta.ID] = meta
+	}
+
+	res := make(map[int64]*optionhub.AttributeMetadata, len(entityAttributes))
+	for _, entityAttr := range entityAttributes {
+		if attrMeta, ok := attrMetaMap[entityAttr.AttributeID]; ok {
+			res[entityAttr.EntityAttributeID] = &optionhub.AttributeMetadata{
+				EntityAttributeId: entityAttr.EntityAttributeID,
+				AttributeId:       entityAttr.AttributeID,
+				Type:              optionhub.AttributeType(optionhub.AttributeType_value[attrMeta.Type]),
+				Name:              attrMeta.Name,
+				Description:       attrMeta.Description,
+				EntityType:        optionhub.EntityType(optionhub.EntityType_value[entityAttr.EntityType]),
+				Label:             entityAttr.Label,
+				IsRequired:        entityAttr.IsRequired,
+				OrderIndex:        int64(entityAttr.OrderIndex),
+				VisibilityRules:   entityAttr.VisibilityRules,
+			}
+		}
+	}
+
+	return &optionhub.GetAttributesMetadataOut{
+		AttributesMetadata: res,
 	}, nil
-}
-
-func (s *Service) AddAttributeValue(ctx context.Context, in *optionhub.AddAttributeValueIn) (*emptypb.Empty, error) {
-	logger := logger_lib.FromContext(ctx, config.KeyLogger)
-	logger.AddFuncName("SetAttributeTopic")
-
-	var attributeObj model.AttributeValue
-
-	attributeObj, err := attributeObj.ToDTO(in)
-
-	if err != nil {
-		return &emptypb.Empty{}, fmt.Errorf("failed to convert grpc message to dto: %v", err)
-	}
-
-	err = s.dbR.AddAttributeValue(ctx, attributeObj)
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to add new attribute: %v", err))
-		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to add new attribute: %v", err)
-	}
-
-	message := &optionhub.SetNewAttribute{AttributeId: in.AttributeId}
-
-	err = s.setAttrP.ProduceMessage(ctx, message, "set_new_attribute")
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to produce kafka message: %v", err))
-		return &emptypb.Empty{}, status.Errorf(codes.Aborted, "failed to produce kafka message: %v", err)
-	}
-
-	return &emptypb.Empty{}, nil
 }

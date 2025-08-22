@@ -35,98 +35,32 @@ func (m *MockDBRepo) EXPECT() *MockDBRepoMockRecorder {
 	return m.recorder
 }
 
-// AddAttributeValue mocks base method.
-func (m *MockDBRepo) AddAttributeValue(ctx context.Context, in model.AttributeValue) error {
+// GetAttributesByIds mocks base method.
+func (m *MockDBRepo) GetAttributesByIds(ctx context.Context, attributesIds []int64) ([]model.Attribute, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddAttributeValue", ctx, in)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddAttributeValue indicates an expected call of AddAttributeValue.
-func (mr *MockDBRepoMockRecorder) AddAttributeValue(ctx, in interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAttributeValue", reflect.TypeOf((*MockDBRepo)(nil).AddAttributeValue), ctx, in)
-}
-
-// GetAttributeValueById mocks base method.
-func (m *MockDBRepo) GetAttributeValueById(ctx context.Context, ids []int64) ([]model.Attribute, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAttributeValueById", ctx, ids)
+	ret := m.ctrl.Call(m, "GetAttributesByIds", ctx, attributesIds)
 	ret0, _ := ret[0].([]model.Attribute)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAttributeValueById indicates an expected call of GetAttributeValueById.
-func (mr *MockDBRepoMockRecorder) GetAttributeValueById(ctx, ids interface{}) *gomock.Call {
+// GetAttributesByIds indicates an expected call of GetAttributesByIds.
+func (mr *MockDBRepoMockRecorder) GetAttributesByIds(ctx, attributesIds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAttributeValueById", reflect.TypeOf((*MockDBRepo)(nil).GetAttributeValueById), ctx, ids)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAttributesByIds", reflect.TypeOf((*MockDBRepo)(nil).GetAttributesByIds), ctx, attributesIds)
 }
 
-// GetOptionRequests mocks base method.
-func (m *MockDBRepo) GetOptionRequests(ctx context.Context) (model.OptionRequestList, error) {
+// GetEntityAttributesByIds mocks base method.
+func (m *MockDBRepo) GetEntityAttributesByIds(ctx context.Context, attributesEntityIds []int64) ([]model.EntityAttribute, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOptionRequests", ctx)
-	ret0, _ := ret[0].(model.OptionRequestList)
+	ret := m.ctrl.Call(m, "GetEntityAttributesByIds", ctx, attributesEntityIds)
+	ret0, _ := ret[0].([]model.EntityAttribute)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetOptionRequests indicates an expected call of GetOptionRequests.
-func (mr *MockDBRepoMockRecorder) GetOptionRequests(ctx interface{}) *gomock.Call {
+// GetEntityAttributesByIds indicates an expected call of GetEntityAttributesByIds.
+func (mr *MockDBRepoMockRecorder) GetEntityAttributesByIds(ctx, attributesEntityIds interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOptionRequests", reflect.TypeOf((*MockDBRepo)(nil).GetOptionRequests), ctx)
-}
-
-// GetValuesByAttributeId mocks base method.
-func (m *MockDBRepo) GetValuesByAttributeId(ctx context.Context, attributeId int64) (model.AttributeValueList, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetValuesByAttributeId", ctx, attributeId)
-	ret0, _ := ret[0].(model.AttributeValueList)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetValuesByAttributeId indicates an expected call of GetValuesByAttributeId.
-func (mr *MockDBRepoMockRecorder) GetValuesByAttributeId(ctx, attributeId interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValuesByAttributeId", reflect.TypeOf((*MockDBRepo)(nil).GetValuesByAttributeId), ctx, attributeId)
-}
-
-// MockSetAttributeProducer is a mock of SetAttributeProducer interface.
-type MockSetAttributeProducer struct {
-	ctrl     *gomock.Controller
-	recorder *MockSetAttributeProducerMockRecorder
-}
-
-// MockSetAttributeProducerMockRecorder is the mock recorder for MockSetAttributeProducer.
-type MockSetAttributeProducerMockRecorder struct {
-	mock *MockSetAttributeProducer
-}
-
-// NewMockSetAttributeProducer creates a new mock instance.
-func NewMockSetAttributeProducer(ctrl *gomock.Controller) *MockSetAttributeProducer {
-	mock := &MockSetAttributeProducer{ctrl: ctrl}
-	mock.recorder = &MockSetAttributeProducerMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockSetAttributeProducer) EXPECT() *MockSetAttributeProducerMockRecorder {
-	return m.recorder
-}
-
-// ProduceMessage mocks base method.
-func (m *MockSetAttributeProducer) ProduceMessage(ctx context.Context, message, key any) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProduceMessage", ctx, message, key)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ProduceMessage indicates an expected call of ProduceMessage.
-func (mr *MockSetAttributeProducerMockRecorder) ProduceMessage(ctx, message, key interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceMessage", reflect.TypeOf((*MockSetAttributeProducer)(nil).ProduceMessage), ctx, message, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEntityAttributesByIds", reflect.TypeOf((*MockDBRepo)(nil).GetEntityAttributesByIds), ctx, attributesEntityIds)
 }
