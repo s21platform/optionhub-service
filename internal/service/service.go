@@ -31,7 +31,7 @@ func (s *Service) GetAttributesMetadata(ctx context.Context, in *optionhub.GetAt
 
 	entityAttributes, err := s.dbR.GetEntityAttributesByIds(ctx, in.EntityAttributeIds)
 	if err != nil {
-		logger_lib.Error(logger_lib.WithField(ctx, "error", err), "failed to get entity attributes")
+		logger_lib.Error(logger_lib.WithField(ctx, "error", err.Error()), "failed to get entity attributes")
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "entity attributes not found")
 		}
@@ -44,7 +44,7 @@ func (s *Service) GetAttributesMetadata(ctx context.Context, in *optionhub.GetAt
 
 	attributes, err := s.dbR.GetAttributesByIds(ctx, attributeIds)
 	if err != nil {
-		logger_lib.Error(logger_lib.WithField(ctx, "error", err), "failed to get attributes")
+		logger_lib.Error(logger_lib.WithField(ctx, "error", err.Error()), "failed to get attributes")
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "attributes not found")
 		}
