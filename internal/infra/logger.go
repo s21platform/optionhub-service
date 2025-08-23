@@ -3,15 +3,14 @@ package infra
 import (
 	"context"
 
-	logger_lib "github.com/s21platform/logger-lib"
 	"google.golang.org/grpc"
 
-	"github.com/s21platform/optionhub-service/internal/config"
+	logger_lib "github.com/s21platform/logger-lib"
 )
 
 func Logger(logger *logger_lib.Logger) func(context.Context, interface{}, *grpc.UnaryServerInfo, grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		ctx = context.WithValue(ctx, config.KeyLogger, logger)
+		ctx = logger_lib.NewContext(ctx, logger)
 		return handler(ctx, req)
 	}
 }

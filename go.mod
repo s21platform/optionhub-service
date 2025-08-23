@@ -1,6 +1,6 @@
 module github.com/s21platform/optionhub-service
 
-go 1.22.8
+go 1.24
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -9,7 +9,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/s21platform/kafka-lib v1.0.2
-	github.com/s21platform/logger-lib v0.0.6
+	github.com/s21platform/logger-lib v1.0.0
 	github.com/s21platform/metrics-lib v0.0.8
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0

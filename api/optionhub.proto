@@ -2,68 +2,48 @@ syntax = "proto3";
 
 option go_package = "pkg/optionhub";
 
-import  "google/protobuf/empty.proto";
-import  "google/protobuf/timestamp.proto";
+//import  "google/protobuf/empty.proto";
+//import  "google/protobuf/timestamp.proto";
 
 service OptionhubService {
-  rpc AddAttributeValue (AddAttributeValueIn) returns (google.protobuf.Empty){};
-  rpc GetOptionRequests (google.protobuf.Empty) returns (GetOptionRequestsOut){};
-  rpc GetAttributeValues (GetAttributeValuesIn) returns (GetAttributeValuesOut){};
+  rpc GetAttributesMetadata (GetAttributesMetadataIn) returns (GetAttributesMetadataOut){};
 }
 
-message Option {
-  //id of the attribute option
-  int64 option_id = 1;
-  //value of the attribute option
-  string option_value = 2;
-  //option that inherits from this option
-  repeated Option children = 3;
+message GetAttributesMetadataIn {
+  repeated int64 entity_attribute_ids = 1;
 }
 
-message GetAttributeValuesIn {
-  //id of the attribute
+enum AttributeType {
+  STRING = 0;
+  NUMBER = 1;
+  DATE = 2;
+  OPTION = 3;
+  MULTISELECT = 4;
+}
+
+enum EntityType {
+  USER = 0;
+  SOCIETY = 1;
+  EVENT = 2;
+  COMMUNITY = 3;
+  MATERIAL = 4;
+}
+
+message AttributeMetadata {
   int64 attribute_id = 1;
+  AttributeType type = 2;
+  string name = 3;
+  optional string description = 4;
+  bytes allowed_operators = 5;
+
+  int64 entity_attribute_id = 20;
+  EntityType entity_type = 21;
+  string label = 22;
+  bool is_required = 23;
+  int64 order_index = 24;
+  bytes visibility_rules = 25;
 }
 
-message GetAttributeValuesOut {
-  //attribute values trees
-  repeated Option option_list = 1;
-}
-
-// message request
-message AddAttributeValueIn  {
-  // id of the row in the db
-  int64 attribute_id = 1;
-  string value = 2;
-  optional int64 parent_id = 3;
-}
-
-// Describe
-message OptionRequestItem {
-  // id of requested note in db
-  int64 option_request_id = 1;
-  // value of requested option
-  string option_request_value = 2;
-  // time of create note
-  google.protobuf.Timestamp created_at = 3;
-  // value of attribute where option requested in
-  string attribute_value = 4;
-  // id of requested attribute
-  int64 attribute_id = 5;
-  // user_uuid for ban
-  string user_uuid = 6;
-}
-
-// message response with requested options
-message GetOptionRequestsOut {
-  // array of items
-  repeated OptionRequestItem optionRequestItem= 1;
-}
-
-
-// ------ KAFKA messages -------
-
-message SetNewAttribute  {
-  // id of the row in the db
-  int64 attribute_id = 1;
+message GetAttributesMetadataOut {
+  map<int64, AttributeMetadata> attributes_metadata = 1;
 }

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net"
+	"os"
 
 	"google.golang.org/grpc"
 
-	kafka_lib "github.com/s21platform/kafka-lib"
 	logger_lib "github.com/s21platform/logger-lib"
 	"github.com/s21platform/metrics-lib/pkg"
 
@@ -21,30 +21,21 @@ import (
 func main() {
 	cfg := config.NewConfig()
 	logger := logger_lib.New(cfg.Logger.Host, cfg.Logger.Port, cfg.Service.Name, cfg.Platform.Env)
+	ctx := logger_lib.NewContext(context.Background(), logger)
 
 	dbRepo := postgres.New(cfg)
 	defer dbRepo.Close()
 
-	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, "optionhub", cfg.Platform.Env)
+	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, cfg.Service.Name, cfg.Platform.Env)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to create metrics: %v", err))
-		log.Fatalf("failed to create metrics: %v", err)
+		logger_lib.Error(ctx, fmt.Sprintf("failed to create metrics: %v", err))
+		os.Exit(1)
 	}
 	defer metrics.Disconnect()
 
-	kafkaConfig := kafka_lib.DefaultProducerConfig(cfg.Kafka.Host, cfg.Kafka.Port, cfg.Kafka.SetAttributeTopic)
+	optionhubService := service.NewService(dbRepo)
 
-	producerSetAttribute := kafka_lib.NewProducer(kafkaConfig)
-	defer func(producerSetAttribute *kafka_lib.KafkaProducer) {
-		err := producerSetAttribute.Close()
-		if err != nil {
-			logger.Error(fmt.Sprintf("failed to close producer: %v", err))
-		}
-	}(producerSetAttribute)
-
-	optionhubService := service.NewService(dbRepo, producerSetAttribute)
-
-	s := grpc.NewServer(
+	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			infra.AuthInterceptor,
 			infra.MetricsInterceptor(metrics),
@@ -52,14 +43,14 @@ func main() {
 		),
 	)
 
-	optionhub.RegisterOptionhubServiceServer(s, optionhubService)
+	optionhub.RegisterOptionhubServiceServer(server, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to listen port: %s; Error: %s", cfg.Service.Port, err))
+		logger_lib.Error(ctx, fmt.Sprintf("failed to listen port: %v", err))
 	}
 
-	if err = s.Serve(lis); err != nil {
-		logger.Error(fmt.Sprintf("failed to start service: %s; Error: %s", cfg.Service.Port, err))
+	if err = server.Serve(lis); err != nil {
+		logger_lib.Error(ctx, fmt.Sprintf("failed to start service: %v", err))
 	}
 }

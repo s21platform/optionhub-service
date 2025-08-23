@@ -21,7 +21,7 @@ func MetricsInterceptor(metrics *pkg.Metrics) func(ctx context.Context, req inte
 		handler grpc.UnaryHandler) (
 		interface{}, error) {
 		t := time.Now()
-		method := strings.Trim(strings.ReplaceAll(info.FullMethod, "/", "_"), "_")
+		method := strings.Join(strings.Split(strings.Trim(info.FullMethod, "/"), "/")[1:], "")
 		metrics.Increment(method)
 
 		ctx = context.WithValue(ctx, config.KeyMetrics, metrics)

@@ -2,227 +2,167 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
-	"fmt"
-	"reflect"
 	"testing"
-	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
-	logger_lib "github.com/s21platform/logger-lib"
-
-	"github.com/s21platform/optionhub-service/internal/config"
 	"github.com/s21platform/optionhub-service/internal/model"
 	"github.com/s21platform/optionhub-service/pkg/optionhub"
-	"github.com/s21platform/optionhub-service/utils"
 )
 
-func TestService_GetAttributeValues(t *testing.T) {
+const (
+	EntityUser = "USER"
+
+	TypeString = "STRING"
+	TypeDate   = "DATE"
+)
+
+func TestService_GetAttributesMetadata(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	t.Run("success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
 
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-	mockRepo := NewMockDBRepo(ctrl)
-	kafkaProducer := NewMockSetAttributeProducer(ctrl)
-
-	t.Run("get_attribute_values_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
-
-		var attributeId int64 = 5
-		expectedDbRes := model.AttributeValueList{
+		mockEntityAttributesIds := []int64{1, 2}
+		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
-				Id:       1,
-				Value:    "Россия",
-				ParentId: nil,
+				EntityAttributeID: 1,
+				EntityType:        EntityUser,
+				AttributeID:       123,
 			},
 			{
-				Id:       2,
-				Value:    "Москва",
-				ParentId: utils.TransformToPtr(int64(1)),
+				EntityAttributeID: 2,
+				EntityType:        EntityUser,
+				AttributeID:       321,
+			},
+		}
+		mockAttributesIds := []int64{123, 321}
+		mockAttributesMeta := []model.Attribute{
+			{
+				ID:   123,
+				Type: TypeString,
 			},
 			{
-				Id:       3,
-				Value:    "Курьяново",
-				ParentId: utils.TransformToPtr(int64(2)),
+				ID:   321,
+				Type: TypeDate,
 			},
 		}
 
-		option3 := &optionhub.Option{
-			OptionId:    3,
-			OptionValue: "Курьяново",
-			Children:    []*optionhub.Option{},
-		}
+		mockDbRepo := NewMockDBRepo(ctrl)
+		mockDbRepo.EXPECT().GetEntityAttributesByIds(gomock.Any(), mockEntityAttributesIds).Return(mockEntityAttributesMeta, nil)
+		mockDbRepo.EXPECT().GetAttributesByIds(gomock.Any(), mockAttributesIds).Return(mockAttributesMeta, nil)
 
-		option2 := &optionhub.Option{
-			OptionId:    2,
-			OptionValue: "Москва",
-			Children:    []*optionhub.Option{option3},
-		}
-
-		option1 := &optionhub.Option{
-			OptionId:    1,
-			OptionValue: "Россия",
-			Children:    []*optionhub.Option{option2},
-		}
-
-		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(expectedDbRes, nil)
-
-		s := NewService(mockRepo, kafkaProducer)
-		result, err := s.GetAttributeValues(ctx, &optionhub.GetAttributeValuesIn{AttributeId: attributeId})
+		s := NewService(mockDbRepo)
+		out, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{
+			EntityAttributeIds: mockEntityAttributesIds,
+		})
 
 		assert.NoError(t, err)
-		assert.True(t, reflect.DeepEqual(option1, result.OptionList[0]))
+		assert.Equal(t, len(mockEntityAttributesIds), len(out.AttributesMetadata))
 	})
 
-	t.Run("get_attribute_values_error", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetAttributeValues")
+	t.Run("failed no attributes in", func(t *testing.T) {
+		ctx := context.Background()
 
-		expErr := errors.New("cannot get data from db")
-		mockLogger.EXPECT().Error(fmt.Sprintf("failed to get attribute values: %v", expErr))
+		s := NewService(nil)
 
-		var attributeId int64 = 5
-
-		mockRepo.EXPECT().GetValuesByAttributeId(gomock.Any(), attributeId).Return(nil, expErr)
-
-		s := NewService(mockRepo, kafkaProducer)
-		_, err := s.GetAttributeValues(ctx, &optionhub.GetAttributeValuesIn{AttributeId: attributeId})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.Internal, st.Code())
-		assert.Contains(t, st.Message(), "failed to get attribute values")
+		_, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{})
+		assert.Error(t, err)
 	})
-}
 
-func TestService_GetOptionRequests(t *testing.T) {
-	t.Parallel()
+	t.Run("failed to get entity attributes no rows", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
 
-	ctx := context.Background()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+		mockEntityAttributesIds := []int64{1, 2}
 
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
+		mockDbRepo := NewMockDBRepo(ctrl)
+		mockDbRepo.EXPECT().GetEntityAttributesByIds(gomock.Any(), mockEntityAttributesIds).Return(nil, sql.ErrNoRows)
 
-	mockRepo := NewMockDBRepo(ctrl)
-	kafkaProducer := NewMockSetAttributeProducer(ctrl)
+		s := NewService(mockDbRepo)
+		_, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{
+			EntityAttributeIds: mockEntityAttributesIds,
+		})
+		assert.Error(t, err)
+	})
 
-	t.Run("get_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
+	t.Run("failed to get entity attributes err", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
 
-		now := time.Now()
-		expectedRequests := model.OptionRequestList{
+		mockEntityAttributesIds := []int64{1, 2}
+
+		mockDbRepo := NewMockDBRepo(ctrl)
+		mockDbRepo.EXPECT().GetEntityAttributesByIds(gomock.Any(), mockEntityAttributesIds).Return(nil, errors.New("some error"))
+
+		s := NewService(mockDbRepo)
+		_, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{
+			EntityAttributeIds: mockEntityAttributesIds,
+		})
+		assert.Error(t, err)
+	})
+
+	t.Run("failed to get attributes no rows", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
+
+		mockEntityAttributesIds := []int64{1, 2}
+		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
-				ID:             1,
-				AttributeID:    100,
-				AttributeValue: "Linux",
-				Value:          "Ubuntu",
-				UserUuid:       "test-uuid",
-				CreatedAt:      now,
+				EntityAttributeID: 1,
+				EntityType:        EntityUser,
+				AttributeID:       123,
+			},
+			{
+				EntityAttributeID: 2,
+				EntityType:        EntityUser,
+				AttributeID:       321,
 			},
 		}
+		mockAttributesIds := []int64{123, 321}
 
-		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
-		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return([]model.Attribute{{ID: 100, Name: "Linux"}}, nil)
+		mockDbRepo := NewMockDBRepo(ctrl)
+		mockDbRepo.EXPECT().GetEntityAttributesByIds(gomock.Any(), mockEntityAttributesIds).Return(mockEntityAttributesMeta, nil)
+		mockDbRepo.EXPECT().GetAttributesByIds(gomock.Any(), mockAttributesIds).Return(nil, sql.ErrNoRows)
 
-		s := NewService(mockRepo, kafkaProducer)
-		result, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
-
-		assert.NoError(t, err)
-		assert.Equal(t, int64(1), result.OptionRequestItem[0].OptionRequestId)
-		assert.Equal(t, int64(100), result.OptionRequestItem[0].AttributeId)
-		assert.Equal(t, "Linux", result.OptionRequestItem[0].AttributeValue)
-		assert.Equal(t, "Ubuntu", result.OptionRequestItem[0].OptionRequestValue)
-		assert.Equal(t, "test-uuid", result.OptionRequestItem[0].UserUuid)
-		assert.Equal(t, timestamppb.New(now), result.OptionRequestItem[0].CreatedAt)
+		s := NewService(mockDbRepo)
+		_, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{
+			EntityAttributeIds: mockEntityAttributesIds,
+		})
+		assert.Error(t, err)
 	})
 
-	t.Run("get_error", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
-		mockLogger.EXPECT().Error("failed to get option requests: test error")
+	t.Run("failed to get attributes err", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
 
-		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(nil, errors.New("test error"))
-
-		s := NewService(mockRepo, kafkaProducer)
-		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.Internal, st.Code())
-		assert.Contains(t, st.Message(), "failed to get option requests")
-	})
-
-	t.Run("get_attributes_error", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("GetOptionRequests")
-		mockLogger.EXPECT().Error("failed to get attribute value by id: test error")
-
-		expectedRequests := model.OptionRequestList{
+		mockEntityAttributesIds := []int64{1, 2}
+		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
-				ID:          1,
-				AttributeID: 100,
+				EntityAttributeID: 1,
+				EntityType:        EntityUser,
+				AttributeID:       123,
+			},
+			{
+				EntityAttributeID: 2,
+				EntityType:        EntityUser,
+				AttributeID:       321,
 			},
 		}
+		mockAttributesIds := []int64{123, 321}
 
-		mockRepo.EXPECT().GetOptionRequests(gomock.Any()).Return(expectedRequests, nil)
-		mockRepo.EXPECT().GetAttributeValueById(gomock.Any(), []int64{100}).Return(nil, errors.New("test error"))
+		mockDbRepo := NewMockDBRepo(ctrl)
+		mockDbRepo.EXPECT().GetEntityAttributesByIds(gomock.Any(), mockEntityAttributesIds).Return(mockEntityAttributesMeta, nil)
+		mockDbRepo.EXPECT().GetAttributesByIds(gomock.Any(), mockAttributesIds).Return(nil, errors.New("some error"))
 
-		s := NewService(mockRepo, kafkaProducer)
-		_, err := s.GetOptionRequests(ctx, &emptypb.Empty{})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.Internal, st.Code())
-		assert.Contains(t, st.Message(), "failed to get attribute value by id")
-	})
-}
-
-func TestService_SetAttribute(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockLogger := logger_lib.NewMockLoggerInterface(ctrl)
-	ctx = context.WithValue(ctx, config.KeyLogger, mockLogger)
-
-	mockRepo := NewMockDBRepo(ctrl)
-	mockProducer := NewMockSetAttributeProducer(ctrl)
-
-	t.Run("set_ok", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
-		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(nil)
-		mockProducer.EXPECT().ProduceMessage(ctx, gomock.Any(), gomock.Any()).Return(nil)
-
-		s := NewService(mockRepo, mockProducer)
-		_, err := s.AddAttributeValue(ctx, &optionhub.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
-
-		assert.NoError(t, err)
-	})
-
-	t.Run("set_error", func(t *testing.T) {
-		mockLogger.EXPECT().AddFuncName("SetAttributeTopic")
-		mockLogger.EXPECT().Error("failed to add new attribute: test error")
-
-		mockRepo.EXPECT().AddAttributeValue(ctx, gomock.Any()).Return(errors.New("test error"))
-
-		s := NewService(mockRepo, mockProducer)
-		_, err := s.AddAttributeValue(ctx, &optionhub.AddAttributeValueIn{AttributeId: 1, Value: "Linux"})
-
-		st, ok := status.FromError(err)
-		assert.True(t, ok)
-		assert.Equal(t, codes.Aborted, st.Code())
-		assert.Contains(t, st.Message(), "failed to add new attribute")
+		s := NewService(mockDbRepo)
+		_, err := s.GetAttributesMetadata(ctx, &optionhub.GetAttributesMetadataIn{
+			EntityAttributeIds: mockEntityAttributesIds,
+		})
+		assert.Error(t, err)
 	})
 }

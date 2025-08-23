@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,18 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OptionhubService_AddAttributeValue_FullMethodName  = "/OptionhubService/AddAttributeValue"
-	OptionhubService_GetOptionRequests_FullMethodName  = "/OptionhubService/GetOptionRequests"
-	OptionhubService_GetAttributeValues_FullMethodName = "/OptionhubService/GetAttributeValues"
+	OptionhubService_GetAttributesMetadata_FullMethodName = "/OptionhubService/GetAttributesMetadata"
 )
 
 // OptionhubServiceClient is the client API for OptionhubService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OptionhubServiceClient interface {
-	AddAttributeValue(ctx context.Context, in *AddAttributeValueIn, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetOptionRequests(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOptionRequestsOut, error)
-	GetAttributeValues(ctx context.Context, in *GetAttributeValuesIn, opts ...grpc.CallOption) (*GetAttributeValuesOut, error)
+	GetAttributesMetadata(ctx context.Context, in *GetAttributesMetadataIn, opts ...grpc.CallOption) (*GetAttributesMetadataOut, error)
 }
 
 type optionhubServiceClient struct {
@@ -42,30 +37,10 @@ func NewOptionhubServiceClient(cc grpc.ClientConnInterface) OptionhubServiceClie
 	return &optionhubServiceClient{cc}
 }
 
-func (c *optionhubServiceClient) AddAttributeValue(ctx context.Context, in *AddAttributeValueIn, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *optionhubServiceClient) GetAttributesMetadata(ctx context.Context, in *GetAttributesMetadataIn, opts ...grpc.CallOption) (*GetAttributesMetadataOut, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, OptionhubService_AddAttributeValue_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *optionhubServiceClient) GetOptionRequests(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOptionRequestsOut, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetOptionRequestsOut)
-	err := c.cc.Invoke(ctx, OptionhubService_GetOptionRequests_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *optionhubServiceClient) GetAttributeValues(ctx context.Context, in *GetAttributeValuesIn, opts ...grpc.CallOption) (*GetAttributeValuesOut, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAttributeValuesOut)
-	err := c.cc.Invoke(ctx, OptionhubService_GetAttributeValues_FullMethodName, in, out, cOpts...)
+	out := new(GetAttributesMetadataOut)
+	err := c.cc.Invoke(ctx, OptionhubService_GetAttributesMetadata_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +51,7 @@ func (c *optionhubServiceClient) GetAttributeValues(ctx context.Context, in *Get
 // All implementations must embed UnimplementedOptionhubServiceServer
 // for forward compatibility.
 type OptionhubServiceServer interface {
-	AddAttributeValue(context.Context, *AddAttributeValueIn) (*emptypb.Empty, error)
-	GetOptionRequests(context.Context, *emptypb.Empty) (*GetOptionRequestsOut, error)
-	GetAttributeValues(context.Context, *GetAttributeValuesIn) (*GetAttributeValuesOut, error)
+	GetAttributesMetadata(context.Context, *GetAttributesMetadataIn) (*GetAttributesMetadataOut, error)
 	mustEmbedUnimplementedOptionhubServiceServer()
 }
 
@@ -89,14 +62,8 @@ type OptionhubServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOptionhubServiceServer struct{}
 
-func (UnimplementedOptionhubServiceServer) AddAttributeValue(context.Context, *AddAttributeValueIn) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddAttributeValue not implemented")
-}
-func (UnimplementedOptionhubServiceServer) GetOptionRequests(context.Context, *emptypb.Empty) (*GetOptionRequestsOut, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOptionRequests not implemented")
-}
-func (UnimplementedOptionhubServiceServer) GetAttributeValues(context.Context, *GetAttributeValuesIn) (*GetAttributeValuesOut, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAttributeValues not implemented")
+func (UnimplementedOptionhubServiceServer) GetAttributesMetadata(context.Context, *GetAttributesMetadataIn) (*GetAttributesMetadataOut, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAttributesMetadata not implemented")
 }
 func (UnimplementedOptionhubServiceServer) mustEmbedUnimplementedOptionhubServiceServer() {}
 func (UnimplementedOptionhubServiceServer) testEmbeddedByValue()                          {}
@@ -119,56 +86,20 @@ func RegisterOptionhubServiceServer(s grpc.ServiceRegistrar, srv OptionhubServic
 	s.RegisterService(&OptionhubService_ServiceDesc, srv)
 }
 
-func _OptionhubService_AddAttributeValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddAttributeValueIn)
+func _OptionhubService_GetAttributesMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAttributesMetadataIn)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OptionhubServiceServer).AddAttributeValue(ctx, in)
+		return srv.(OptionhubServiceServer).GetAttributesMetadata(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OptionhubService_AddAttributeValue_FullMethodName,
+		FullMethod: OptionhubService_GetAttributesMetadata_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionhubServiceServer).AddAttributeValue(ctx, req.(*AddAttributeValueIn))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OptionhubService_GetOptionRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OptionhubServiceServer).GetOptionRequests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OptionhubService_GetOptionRequests_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionhubServiceServer).GetOptionRequests(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OptionhubService_GetAttributeValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAttributeValuesIn)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OptionhubServiceServer).GetAttributeValues(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OptionhubService_GetAttributeValues_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionhubServiceServer).GetAttributeValues(ctx, req.(*GetAttributeValuesIn))
+		return srv.(OptionhubServiceServer).GetAttributesMetadata(ctx, req.(*GetAttributesMetadataIn))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -181,16 +112,8 @@ var OptionhubService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OptionhubServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddAttributeValue",
-			Handler:    _OptionhubService_AddAttributeValue_Handler,
-		},
-		{
-			MethodName: "GetOptionRequests",
-			Handler:    _OptionhubService_GetOptionRequests_Handler,
-		},
-		{
-			MethodName: "GetAttributeValues",
-			Handler:    _OptionhubService_GetAttributeValues_Handler,
+			MethodName: "GetAttributesMetadata",
+			Handler:    _OptionhubService_GetAttributesMetadata_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
