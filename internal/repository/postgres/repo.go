@@ -20,7 +20,7 @@ func New(cfg *config.Config) *Repository {
 
 	conn, err := sqlx.Connect("postgres", conStr)
 	if err != nil {
-		log.Fatal("error connect: ", err)
+		log.Fatal("failed to connect: ", err)
 	}
 
 	return &Repository{

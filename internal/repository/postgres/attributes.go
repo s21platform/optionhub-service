@@ -30,6 +30,7 @@ func (r *Repository) GetAttributesByIds(ctx context.Context, attributesIds []int
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch attributes meta: %w", err)
 	}
+
 	return attributesMeta, nil
 }
 
@@ -54,10 +55,12 @@ func (r *Repository) GetEntityAttributesByIds(ctx context.Context, attributesEnt
 	if err != nil {
 		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
+
 	var entityAttributes []model.EntityAttribute
 	err = r.connection.SelectContext(ctx, &entityAttributes, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch entity attributes: %w", err)
 	}
+
 	return entityAttributes, nil
 }

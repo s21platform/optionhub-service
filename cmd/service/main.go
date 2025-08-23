@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
+	"os"
 
 	"google.golang.org/grpc"
 
@@ -20,23 +20,22 @@ import (
 
 func main() {
 	cfg := config.NewConfig()
-	log.Println(cfg)
 	logger := logger_lib.New(cfg.Logger.Host, cfg.Logger.Port, cfg.Service.Name, cfg.Platform.Env)
 	ctx := logger_lib.NewContext(context.Background(), logger)
 
 	dbRepo := postgres.New(cfg)
 	defer dbRepo.Close()
 
-	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, "optionhub", cfg.Platform.Env)
+	metrics, err := pkg.NewMetrics(cfg.Metrics.Host, cfg.Metrics.Port, cfg.Service.Name, cfg.Platform.Env)
 	if err != nil {
 		logger_lib.Error(ctx, fmt.Sprintf("failed to create metrics: %v", err))
-		log.Fatalf("failed to create metrics: %v", err)
+		os.Exit(1)
 	}
 	defer metrics.Disconnect()
 
 	optionhubService := service.NewService(dbRepo)
 
-	s := grpc.NewServer(
+	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			infra.AuthInterceptor,
 			infra.MetricsInterceptor(metrics),
@@ -44,14 +43,14 @@ func main() {
 		),
 	)
 
-	optionhub.RegisterOptionhubServiceServer(s, optionhubService)
+	optionhub.RegisterOptionhubServiceServer(server, optionhubService)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Service.Port))
 	if err != nil {
-		logger_lib.Error(ctx, fmt.Sprintf("failed to listen port: %s; Error: %s", cfg.Service.Port, err))
+		logger_lib.Error(ctx, fmt.Sprintf("failed to listen port: %v", err))
 	}
 
-	if err = s.Serve(lis); err != nil {
-		logger_lib.Error(ctx, fmt.Sprintf("failed to start service: %s; Error: %s", cfg.Service.Port, err))
+	if err = server.Serve(lis); err != nil {
+		logger_lib.Error(ctx, fmt.Sprintf("failed to start service: %v", err))
 	}
 }

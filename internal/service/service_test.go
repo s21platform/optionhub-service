@@ -13,6 +13,13 @@ import (
 	"github.com/s21platform/optionhub-service/pkg/optionhub"
 )
 
+const (
+	EntityUser = "USER"
+
+	TypeString = "STRING"
+	TypeDate   = "DATE"
+)
+
 func TestService_GetAttributesMetadata(t *testing.T) {
 	t.Parallel()
 
@@ -24,12 +31,12 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
 				EntityAttributeID: 1,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       123,
 			},
 			{
 				EntityAttributeID: 2,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       321,
 			},
 		}
@@ -37,11 +44,11 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		mockAttributesMeta := []model.Attribute{
 			{
 				ID:   123,
-				Type: "STRING",
+				Type: TypeString,
 			},
 			{
 				ID:   321,
-				Type: "DATE",
+				Type: TypeDate,
 			},
 		}
 
@@ -58,7 +65,7 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		assert.Equal(t, len(mockEntityAttributesIds), len(out.AttributesMetadata))
 	})
 
-	t.Run("fail no attributes in", func(t *testing.T) {
+	t.Run("failed no attributes in", func(t *testing.T) {
 		ctx := context.Background()
 
 		s := NewService(nil)
@@ -67,7 +74,7 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("fail to get entity attributes no rows", func(t *testing.T) {
+	t.Run("failed to get entity attributes no rows", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
@@ -83,7 +90,7 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("fail to get entity attributes err", func(t *testing.T) {
+	t.Run("failed to get entity attributes err", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
@@ -99,7 +106,7 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("fail to get attributes no rows", func(t *testing.T) {
+	t.Run("failed to get attributes no rows", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
@@ -107,12 +114,12 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
 				EntityAttributeID: 1,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       123,
 			},
 			{
 				EntityAttributeID: 2,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       321,
 			},
 		}
@@ -129,7 +136,7 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("fail to get attributes err", func(t *testing.T) {
+	t.Run("failed to get attributes err", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
@@ -137,12 +144,12 @@ func TestService_GetAttributesMetadata(t *testing.T) {
 		mockEntityAttributesMeta := []model.EntityAttribute{
 			{
 				EntityAttributeID: 1,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       123,
 			},
 			{
 				EntityAttributeID: 2,
-				EntityType:        "USER",
+				EntityType:        EntityUser,
 				AttributeID:       321,
 			},
 		}
