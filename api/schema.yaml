@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: User Service
+  version: 1.0.0
+
+paths:
+  /api/optionhub/options:
+    get:
+      summary: Ручка для получения json с атрибутами и опциями
+      operationId: GetOptions
+      parameters:
+        - name: X-User-Uuid
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: attribute_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Options'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Options:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionItem'
+    OptionItem:
+      type: object
+      required:
+        - label
+        - option_id
+        - attribute_id
+      properties:
+        label:
+          type: string
+        option_id:
+          type: integer
+          format: int64
+        attribute_id:
+          type: integer
+          format: int64
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Internal Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource is not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
