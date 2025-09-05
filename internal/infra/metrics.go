@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"time"
 
@@ -34,5 +35,16 @@ func MetricsInterceptor(metrics *pkg.Metrics) func(ctx context.Context, req inte
 		metrics.Duration(time.Since(t).Milliseconds(), method)
 
 		return resp, err
+	}
+}
+
+func MetricsRequest(metrics *pkg.Metrics) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			metrics.Increment(r.Method)
+			ctx = context.WithValue(ctx, config.KeyMetrics, metrics)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
 }
